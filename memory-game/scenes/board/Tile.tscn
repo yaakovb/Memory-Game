@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://bpdhvf4nrfa4h"]
+
+[ext_resource type="Script" uid="uid://bfwbp1sjgs2lc" path="res://scripts/tile/tile.gd" id="1_ts3a1"]
+
+[node name="Tile" type="Node2D"]
+script = ExtResource("1_ts3a1")
+
+[node name="Face" type="ColorRect" parent="."]
+offset_right = 64.0
+offset_bottom = 64.0
+color = Color(0.22745098, 0.22745098, 0.22745098, 1)
+
+[node name="Cover" type="ColorRect" parent="."]
+offset_right = 64.0
+offset_bottom = 64.0
+color = Color(0.15, 0.15, 0.15, 1)
+modulate = Color(1, 1, 1, 0)

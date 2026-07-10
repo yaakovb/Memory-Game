@@ -1,0 +1,52 @@
+class_name Selector extends Node2D
+
+var grid_position := Vector2i.ZERO
+const MOVE_COOLDOWN := 0.25
+var _move_timer := 0.0
+var _board: Board
+
+func setup(board: Board) -> void:
+	_board = board
+	grid_position = Vector2i.ZERO
+	_sync_position()
+
+func set_grid_position(new_pos: Vector2i) -> void:
+	grid_position = new_pos
+	_sync_position()
+
+func _sync_position() -> void:
+	if _board:
+		position = _board.grid_to_world(grid_position)
+
+func _process(delta: float) -> void:
+	if _move_timer > 0:
+		_move_timer -= delta
+		if _move_timer <= 0:
+			_move_timer = 0
+
+func _input(event: InputEvent) -> void:
+	if _board and _board.is_input_blocked():
+		return
+	if _move_timer > 0:
+		return
+	if(event.is_echo()):
+		return
+
+	if event.is_action_pressed("move_left"):
+		_move_to_position(Vector2i.LEFT)
+	elif event.is_action_pressed("move_right"):
+		_move_to_position(Vector2i.RIGHT)
+	elif event.is_action_pressed("move_up"):
+		_move_to_position(Vector2i.UP)
+	elif event.is_action_pressed("move_down"):
+		_move_to_position(Vector2i.DOWN)
+
+
+func _move_to_position(direction: Vector2i) -> void:
+	var target: Vector2i = _board.clamp_grid_position(grid_position + direction)
+	
+	if target == grid_position:
+		return
+	
+	set_grid_position(target)
+	_move_timer = MOVE_COOLDOWN
