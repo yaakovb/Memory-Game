@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://bsi7fecv2n4no" path="res://scenes/board/Board.tscn" id="2_board_scene"]
 [ext_resource type="PackedScene" uid="uid://cmjxhpsg72elh" path="res://scenes/selector/selector.tscn" id="3_selector_scene"]
 [ext_resource type="Script" uid="uid://b5ld6c7qco4jn" path="res://scripts/combat/combat.gd" id="4_l3cfh"]
+[ext_resource type="Script" uid="uid://syx5r5oij4gp" path="res://scripts/effectResolver/effect_resolver.gd" id="5_6q06x"]
 
 [node name="Main" type="Node2D" unique_id=1803542411]
 script = ExtResource("1_main_script")
@@ -30,3 +31,6 @@ theme_override_font_sizes/font_size = 20
 [node name="EnemyHPLabel" type="Label" parent="HUD/VBoxContainer" unique_id=818310474]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
+
+[node name="EffectResolver" type="Node" parent="." unique_id=1481535586]
+script = ExtResource("5_6q06x")

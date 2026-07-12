@@ -8,6 +8,7 @@ const FREEZE_DURATION := 1.0
 @export var tile_scene: PackedScene = preload("res://scenes/board/Tile.tscn")
 
 enum SelectionState { IDLE, ONE_SELECTED, RESOLVING }
+signal pair_matched(pair_id: int)
 
 var _tiles: Dictionary = {}
 var _selection_state := SelectionState.IDLE
@@ -114,6 +115,7 @@ func _resolve_pair() -> void:
 	if first.pair_id == second.pair_id:
 		first.make_empty()
 		second.make_empty()
+		pair_matched.emit(first.pair_id)
 	else:
 		_resolve_mismatch(first, second)
 

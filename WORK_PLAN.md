@@ -4,7 +4,7 @@ Living checklist for MVP implementation. Gameplay rules: [GAME_DESIGN.md](GAME_D
 
 Godot project lives in `memory-game/`.
 
-**Last updated:** Step 4 complete — ready for Step 5.
+**Last updated:** Step 5 complete — ready for Step 6.
 
 ---
 
@@ -16,8 +16,8 @@ Godot project lives in `memory-game/`.
 | 2 | Reveal + two-tile selection | **Done** |
 | 3 | Match / mismatch + tile states | **Done** |
 | 4 | Combat — HP + enemy timer | **Done** |
-| 5 | Effects — attack + heal | **Next** |
-| 6 | Effects — slow, speed, upgrade | Not started |
+| 5 | Effects — attack + heal | **Done** |
+| 6 | Effects — slow, speed, upgrade | **Next** |
 | 7 | Board refresh when cleared | Not started |
 | 8 | Win / lose + battle end | Not started |
 
@@ -27,19 +27,20 @@ Godot project lives in `memory-game/`.
 
 | System | Done |
 |--------|------|
-| Scenes | `Main`, `Board`, `Selector`, `Tile`, `Combat`, `HUD` |
+| Scenes | `Main`, `Board`, `Selector`, `Tile`, `Combat`, `HUD`, `EffectResolver` |
 | Movement | WASD, 0.25s cooldown, grid clamping |
 | Input | `move_*` actions, `reveal` (Space) |
-| Board | 4×4 spawn, shuffled pair ids (0–7), tile lookup |
+| Board | 4×4 spawn, shuffled pair ids (0–7), `pair_matched` signal |
 | Selection FSM | `IDLE` → `ONE_SELECTED` → resolve |
-| Match | Same `pair_id` → `make_empty()` (holes) |
+| Match | Same `pair_id` → `make_empty()` + emit |
 | Mismatch | Grey face, 1s freeze, 4s cover fade → `conceal()` |
 | Tile states | `HIDDEN`, `REVEALED`, `GREYED`, `EMPTY` |
 | Pair colors | 0–2 Attack, 3–4 Heal, 5 Slow, 6 Speed, 7 Upgrade |
-| Combat | Player/enemy HP, enemy timer damage, heal/damage APIs |
-| HUD | HP labels, `hp_changed` signal wiring |
+| Combat | Player/enemy HP, enemy timer, heal/damage APIs |
+| HUD | HP labels via `hp_changed` |
+| Effects | Attack (−3 enemy), Heal (+4 player) via EffectResolver |
 
-**Not yet:** match → effects, buffs, new board when cleared, win/lose UI.
+**Not yet:** slow/speed/upgrade buffs, new board when cleared, win/lose UI.
 
 ---
 
@@ -88,21 +89,19 @@ Tile uses `Face` + `Cover` layers. States: `GREYED`, `EMPTY` added. Greyed tiles
 
 `Combat` owns player/enemy HP and an enemy attack timer (default: every 4s, 2 damage). HUD labels update via `hp_changed`. Board play continues while combat runs.
 
-**APIs ready for Step 5:** `damage_enemy()`, `heal_player()`, plus `player_defeated` / `enemy_defeated` signals (used in Step 8).
-
 **Validates:** real-time pressure, combat independent of board selection, signal → HUD.
 
 **Key files:** `combat.gd`, `Main.tscn` (`Combat`, `HUD`), `main.gd`.
 
-**Notes:** HUD placed off the grid (`x ≈ 300`). Optional later: stop enemy timer when `player_hp <= 0`.
-
 ---
 
-### Step 5 — Effects — attack + heal
+### Step 5 — Effects — attack + heal ✅
 
-Wire match results to combat. Attack pairs (ids 0–2) damage the enemy; heal pairs (ids 3–4) restore player HP. Introduce `EffectResolver` (or equivalent) so Board announces matches without knowing HP math.
+Board emits `pair_matched(pair_id)`. EffectResolver maps ids 0–2 → `damage_enemy(3)`, ids 3–4 → `heal_player(4)`. Ids 5–7 stubbed for Step 6.
 
-**Validates:** signal-style decoupling, first real gameplay consequences.
+**Validates:** Board decoupled from Combat; first real match consequences.
+
+**Key files:** `board.gd`, `effect_resolver.gd`, `main.gd`.
 
 ---
 
@@ -110,9 +109,9 @@ Wire match results to combat. Attack pairs (ids 0–2) damage the enemy; heal pa
 
 Add remaining pair types from the GDD:
 
-- **Slow** — enemy attacks less often (timed buff, stacks up to 3)
-- **Speed** — faster selector movement (timed buff, stacks up to 3)
-- **Upgrade** — +1 attack damage for rest of battle
+- **Slow** (id 5) — enemy attacks less often (timed buff, stacks up to 3)
+- **Speed** (id 6) — faster selector movement (timed buff, stacks up to 3)
+- **Upgrade** (id 7) — +1 attack damage for rest of battle
 
 **Validates:** buff timers, stacking, selector move cooldown modification.
 
