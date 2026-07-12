@@ -4,7 +4,7 @@ Living checklist for MVP implementation. Gameplay rules: [GAME_DESIGN.md](GAME_D
 
 Godot project lives in `memory-game/`.
 
-**Last updated:** Step 3 complete — ready for Step 4.
+**Last updated:** Step 4 complete — ready for Step 5.
 
 ---
 
@@ -15,8 +15,8 @@ Godot project lives in `memory-game/`.
 | 1 | Grid + selector movement | **Done** |
 | 2 | Reveal + two-tile selection | **Done** |
 | 3 | Match / mismatch + tile states | **Done** |
-| 4 | Combat — HP + enemy timer | **Next** |
-| 5 | Effects — attack + heal | Not started |
+| 4 | Combat — HP + enemy timer | **Done** |
+| 5 | Effects — attack + heal | **Next** |
 | 6 | Effects — slow, speed, upgrade | Not started |
 | 7 | Board refresh when cleared | Not started |
 | 8 | Win / lose + battle end | Not started |
@@ -27,7 +27,7 @@ Godot project lives in `memory-game/`.
 
 | System | Done |
 |--------|------|
-| Scenes | `Main`, `Board`, `Selector`, `Tile` |
+| Scenes | `Main`, `Board`, `Selector`, `Tile`, `Combat`, `HUD` |
 | Movement | WASD, 0.25s cooldown, grid clamping |
 | Input | `move_*` actions, `reveal` (Space) |
 | Board | 4×4 spawn, shuffled pair ids (0–7), tile lookup |
@@ -36,8 +36,10 @@ Godot project lives in `memory-game/`.
 | Mismatch | Grey face, 1s freeze, 4s cover fade → `conceal()` |
 | Tile states | `HIDDEN`, `REVEALED`, `GREYED`, `EMPTY` |
 | Pair colors | 0–2 Attack, 3–4 Heal, 5 Slow, 6 Speed, 7 Upgrade |
+| Combat | Player/enemy HP, enemy timer damage, heal/damage APIs |
+| HUD | HP labels, `hp_changed` signal wiring |
 
-**Not yet:** combat, effects on match, new board when cleared, win/lose.
+**Not yet:** match → effects, buffs, new board when cleared, win/lose UI.
 
 ---
 
@@ -82,17 +84,23 @@ Tile uses `Face` + `Cover` layers. States: `GREYED`, `EMPTY` added. Greyed tiles
 
 ---
 
-### Step 4 — Combat — HP + enemy timer
+### Step 4 — Combat — HP + enemy timer ✅
 
-Add `Combat` (and minimal HUD labels). Player and enemy have HP. Enemy attacks on a fixed timer while the player plays — the game never pauses.
+`Combat` owns player/enemy HP and an enemy attack timer (default: every 4s, 2 damage). HUD labels update via `hp_changed`. Board play continues while combat runs.
 
-**Validates:** real-time pressure, combat running independently of board selection.
+**APIs ready for Step 5:** `damage_enemy()`, `heal_player()`, plus `player_defeated` / `enemy_defeated` signals (used in Step 8).
+
+**Validates:** real-time pressure, combat independent of board selection, signal → HUD.
+
+**Key files:** `combat.gd`, `Main.tscn` (`Combat`, `HUD`), `main.gd`.
+
+**Notes:** HUD placed off the grid (`x ≈ 300`). Optional later: stop enemy timer when `player_hp <= 0`.
 
 ---
 
 ### Step 5 — Effects — attack + heal
 
-Wire match results to combat. Attack pairs damage the enemy; heal pairs restore player HP. Introduce `EffectResolver` (or equivalent) so Board announces matches without knowing HP math.
+Wire match results to combat. Attack pairs (ids 0–2) damage the enemy; heal pairs (ids 3–4) restore player HP. Introduce `EffectResolver` (or equivalent) so Board announces matches without knowing HP math.
 
 **Validates:** signal-style decoupling, first real gameplay consequences.
 

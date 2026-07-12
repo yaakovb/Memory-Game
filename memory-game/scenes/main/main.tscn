@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://g80oj7aqg8nh" path="res://scripts/main/main.gd" id="1_main_script"]
 [ext_resource type="PackedScene" uid="uid://bsi7fecv2n4no" path="res://scenes/board/Board.tscn" id="2_board_scene"]
 [ext_resource type="PackedScene" uid="uid://cmjxhpsg72elh" path="res://scenes/selector/selector.tscn" id="3_selector_scene"]
+[ext_resource type="Script" uid="uid://b5ld6c7qco4jn" path="res://scripts/combat/combat.gd" id="4_l3cfh"]
 
 [node name="Main" type="Node2D" unique_id=1803542411]
 script = ExtResource("1_main_script")
@@ -10,3 +11,22 @@ script = ExtResource("1_main_script")
 [node name="Board" parent="." unique_id=1645541397 instance=ExtResource("2_board_scene")]
 
 [node name="Selector" parent="." unique_id=620340761 instance=ExtResource("3_selector_scene")]
+
+[node name="Combat" type="Node" parent="." unique_id=1683879358]
+script = ExtResource("4_l3cfh")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=842769536]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD" unique_id=170322431]
+offset_left = 300.0
+offset_top = 16.0
+offset_right = 340.0
+offset_bottom = 66.0
+
+[node name="PlayerHPLabel" type="Label" parent="HUD/VBoxContainer" unique_id=2026167608]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+
+[node name="EnemyHPLabel" type="Label" parent="HUD/VBoxContainer" unique_id=818310474]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
