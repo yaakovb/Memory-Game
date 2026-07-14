@@ -260,21 +260,24 @@ If a feature does not improve the game, it should be removed.
 
 ## Values To Tune (Config)
 
-These are placeholders — adjust during playtesting without restructuring systems:
+These are placeholders — adjust during playtesting without restructuring systems.
 
-| Parameter | Notes |
-|-----------|-------|
-| Base attack damage | vs enemy HP |
-| Heal amount | should not trivialize risk |
-| Enemy HP | how many boards per fight |
-| Enemy hit damage | pressure vs player HP |
-| Enemy attack interval | baseline before slow stacks |
-| Slow % per stack | enemy interval multiplier |
-| Speed % per stack | move cooldown reduction |
-| Minimum move cooldown | floor for speed stacks |
-| Freeze duration | currently 1s |
-| Mismatch fade duration | currently 4s |
-| Buff duration | currently 10s per slow/speed application |
+| Parameter | Current MVP value | Notes |
+|-----------|-------------------|-------|
+| Base attack damage | `3` | EffectResolver `ATTACK_DAMAGE` |
+| Attack bonus per upgrade | `+1` | Combat `attack_bonus` |
+| Heal amount | `4` | EffectResolver `HEAL_AMOUNT` |
+| Player max HP | `20` | Combat export |
+| Enemy max HP | `30` | Combat export |
+| Enemy hit damage | `2` | Combat export |
+| Enemy attack interval | `4.0` s | Baseline before slow |
+| Slow % per stack | `+25%` interval | Max 3 stacks |
+| Speed reduction per stack | `−0.05` s | Max 3 stacks |
+| Minimum move cooldown | `0.1` s | Floor for speed stacks |
+| Base move cooldown | `0.25` s | Selector |
+| Freeze duration | `1` s | Mismatch input freeze |
+| Mismatch fade duration | `4` s | Cover tween |
+| Buff duration | `10` s | Slow / speed refresh on reapply |
 
 ---
 

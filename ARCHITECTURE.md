@@ -38,43 +38,41 @@ We use signals so systems stay decoupled: the Board announces `pair_matched` wit
 ### Overview
 
 ```
-Main (Node)                          ← project entry scene
-└── Battle (Node)                    ← orchestrator; wires systems together
-    ├── Board (Node2D)               ← grid, tile spawning, match logic
-    │   └── Tile (×16)               ← instanced from scenes/tile/Tile.tscn
-    ├── Selector (Node2D)            ← grid position, movement cooldown, visuals
-    ├── Combat (Node)                ← HP, enemy attack timer
-    ├── EffectResolver (Node)        ← match effects, buff stacks
-    └── HUD (CanvasLayer)            ← HP labels, debug info (MVP: minimal)
-        └── MarginContainer
-            └── VBoxContainer
-                ├── PlayerHPLabel
-                └── EnemyHPLabel
+Main (Node2D)                        ← project entry; wires systems (MVP orchestrator)
+├── Board (Node2D)                   ← grid, tile spawning, match logic
+│   └── Tile (×16)                   ← instanced from scenes/board/Tile.tscn
+├── Selector (Node2D)                ← grid position, movement cooldown, visuals
+├── Combat (Node)                    ← HP, enemy attack timer, slow stacks, attack bonus
+├── EffectResolver (Node)            ← pair_id → combat/selector actions
+└── HUD (CanvasLayer)                ← HP labels (MVP: minimal)
+    └── VBoxContainer
+        ├── PlayerHPLabel
+        └── EnemyHPLabel
 ```
 
-### Scene files (planned)
+**Note:** A separate `Battle` scene was planned; MVP uses `Main` as the orchestrator. Introduce `Battle.tscn` later if Main grows (win/lose, multi-board) and you want a cleaner entry scene.
+
+### Scene files (current / planned)
 
 | File | Root type | Purpose |
 |------|-----------|---------|
-| `scenes/main/Main.tscn` | `Node` | Entry point; instances Battle |
-| `scenes/battle/Battle.tscn` | `Node` | Battle orchestration |
+| `scenes/main/main.tscn` | `Node2D` | Entry + wiring (current) |
+| `scenes/battle/Battle.tscn` | `Node` | Optional later — battle orchestration |
 | `scenes/board/Board.tscn` | `Node2D` | Grid layout and tile container |
-| `scenes/tile/Tile.tscn` | `Node2D` or `Control` | Single cell (face, cover, effect id) |
-| `scenes/selector/Selector.tscn` | `Node2D` | Cursor highlight on grid |
-
-Combat, EffectResolver, and HUD can start as child nodes inside `Battle.tscn`. Split into separate scenes later only if they grow.
+| `scenes/board/Tile.tscn` | `Node2D` | Single cell (face + cover) |
+| `scenes/selector/selector.tscn` | `Node2D` | Cursor highlight on grid |
 
 ### Responsibilities
 
 | Node | Owns | Does NOT own |
 |------|------|----------------|
-| **Battle** | Fight flow, input gating (freeze/ended), win/lose, dealing new boards | Tile visuals, damage formulas |
-| **Board** | Grid size, tile positions, spawn/clear tiles, pick-two logic, match/mismatch detection | Player HP, enemy timer |
-| **Tile** | Visual state (hidden/revealed/greyed/empty), fade tween, `effect_id` for this cell | Whether two tiles match globally |
-| **Selector** | Grid coordinates, move cooldown, speed buff modifier, drawing highlight | Reading match rules |
-| **Combat** | Player HP, enemy HP, enemy attack interval, applying damage/heal numbers | Which effect id means what |
-| **EffectResolver** | Map `effect_id` → actions; slow/speed/upgrade stacks and timers | Spawning tiles |
-| **HUD** | Display HP and optional buff indicators | Game rules |
+| **Main** | Wiring (setup/connect), HUD text from `hp_changed` | Match rules, damage formulas |
+| **Board** | Grid size, tile positions, spawn/clear tiles, pick-two logic, match/mismatch | Player HP, enemy timer |
+| **Tile** | Visual state (hidden/revealed/greyed/empty), fade tween, `pair_id` | Whether two tiles match globally |
+| **Selector** | Grid coordinates, move cooldown, **speed stacks/timer** | Reading match rules |
+| **Combat** | Player/enemy HP, enemy attack timer, **slow stacks/timer**, **attack_bonus** | Which pair id means what |
+| **EffectResolver** | Map `pair_id` → method calls on Combat/Selector | Stack storage, HP math internals |
+| **HUD** | Display HP (optional: buff labels later) | Game rules |
 
 ### Input ownership (MVP decision)
 
@@ -186,17 +184,17 @@ IN_PROGRESS ──[enemy HP ≤ 0]──► ENDED (won)
 
 ---
 
-### 5. Buff stacks (`EffectResolver.gd`)
+### 5. Buff stacks (implemented ownership)
 
-Not tile/selector states, but track alongside combat.
+Buff **state** lives on the system it affects. EffectResolver only **applies**.
 
-| Buff | Fields | Rules |
-|------|--------|-------|
-| **Slow** | `stacks` (0–3), `time_remaining` | +interval per stack; 10s refreshed on reapply |
-| **Speed** | `stacks` (0–3), `time_remaining` | −cooldown per stack; 10s refreshed on reapply |
-| **Upgrade** | `bonus_damage` (int) | Permanent for battle; +1 per upgrade match |
+| Buff | Owner | Fields | Rules |
+|------|-------|--------|-------|
+| **Slow** | `Combat` | `_slow_stacks` (0–3), `_slow_timer` | +25% attack interval per stack; 10s refreshed on reapply |
+| **Speed** | `Selector` | `_speed_stacks` (0–3), `_speed_timer` | −0.05s move cooldown per stack (min 0.1); 10s refreshed on reapply |
+| **Upgrade** | `Combat` | `attack_bonus` (int) | Permanent for battle; +1 per upgrade match |
 
-Decay: when `time_remaining` hits 0, reset stacks to 0 for that buff.
+Decay: when timer hits 0, reset that buff’s stacks to 0.
 
 ---
 
@@ -252,42 +250,41 @@ Combat may also emit internal signals or call Battle directly when HP hits zero 
 
 ## Build Order (maps to scene tree)
 
-Implement in this order; each step is playable before the next.
+Status tracked in [WORK_PLAN.md](WORK_PLAN.md). Each step should be playable before the next.
 
-| Step | What to build | Validates |
-|------|---------------|-----------|
-| 1 | `Board` + `Tile` + `Selector` — grid, WASD, highlight | Movement, coordinates |
-| 2 | Reveal + `ONE_SELECTED` / `IDLE` | Selection FSM |
-| 3 | Match / mismatch + tile states + grey fade | Tile FSM, tweens |
-| 4 | `Combat` — HP labels, enemy timer | Real-time pressure |
-| 5 | `EffectResolver` — attack + heal only | Signal wiring |
-| 6 | Remaining effects + buff stacks | Full pair table |
-| 7 | `board_cleared` / `board_dealt` | Multi-board fights |
-| 8 | Win / lose + `ENDED` | Complete loop |
+| Step | What to build | Status |
+|------|---------------|--------|
+| 1 | `Board` + `Tile` + `Selector` — grid, WASD, highlight | Done |
+| 2 | Reveal + selection FSM | Done |
+| 3 | Match / mismatch + tile states + grey fade | Done |
+| 4 | `Combat` — HP labels, enemy timer | Done |
+| 5 | `EffectResolver` — attack + heal | Done |
+| 6 | Slow / speed / upgrade buffs | Done |
+| 7 | `board_cleared` / `board_dealt` | Next |
+| 8 | Win / lose + `ENDED` | Not started |
 
 ---
 
-## Folder structure (planned)
+## Folder structure (current)
 
 ```
 Memory-Game/
 ├── GAME_DESIGN.md
 ├── ARCHITECTURE.md
-├── scenes/
-│   ├── main/
-│   ├── battle/
-│   ├── board/
-│   ├── tile/
-│   └── selector/
-├── scripts/
-│   ├── battle/
-│   ├── board/
-│   ├── tile/
-│   ├── selector/
-│   ├── combat/
-│   └── effects/
-└── resources/
-    └── effect_config.tres    ← tunable damage, HP, timers (later)
+├── WORK_PLAN.md
+└── memory-game/                 ← Godot project root
+    ├── project.godot
+    ├── scenes/
+    │   ├── main/
+    │   ├── board/
+    │   └── selector/
+    └── scripts/
+        ├── main/
+        ├── board/
+        ├── tile/
+        ├── selector/
+        ├── combat/
+        └── effects/
 ```
 
 ---

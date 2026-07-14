@@ -1,8 +1,14 @@
 class_name Selector extends Node2D
 
 var grid_position := Vector2i.ZERO
-const MOVE_COOLDOWN := 0.25
+const BASE_MOVE_COOLDOWN := 0.25
+const MIN_MOVE_COOLDOWN := 0.1
+const SPEED_PER_STACK := 0.05
+const MAX_SPEED_STACKS := 3
+const SPEED_DURATION := 10.0
 var _move_timer := 0.0
+var _speed_stacks := 0
+var _speed_timer := 0.0
 var _board: Board
 
 func setup(board: Board) -> void:
@@ -23,6 +29,10 @@ func _process(delta: float) -> void:
 		_move_timer -= delta
 		if _move_timer <= 0:
 			_move_timer = 0
+	if _speed_timer > 0:
+		_speed_timer -= delta
+		if _speed_timer <= 0:
+			_speed_stacks = 0
 
 func _input(event: InputEvent) -> void:
 	if _board and _board.is_input_blocked():
@@ -49,4 +59,11 @@ func _move_to_position(direction: Vector2i) -> void:
 		return
 	
 	set_grid_position(target)
-	_move_timer = MOVE_COOLDOWN
+	_move_timer = get_move_cooldown()
+
+func apply_speed() -> void:
+	_speed_stacks = mini(_speed_stacks + 1, MAX_SPEED_STACKS)
+	_speed_timer = SPEED_DURATION
+
+func get_move_cooldown() -> float:
+	return maxf(BASE_MOVE_COOLDOWN - _speed_stacks * SPEED_PER_STACK, MIN_MOVE_COOLDOWN)

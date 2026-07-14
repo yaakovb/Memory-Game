@@ -4,7 +4,7 @@ Living checklist for MVP implementation. Gameplay rules: [GAME_DESIGN.md](GAME_D
 
 Godot project lives in `memory-game/`.
 
-**Last updated:** Step 5 complete — ready for Step 6.
+**Last updated:** Step 6 complete — ready for Step 7.
 
 ---
 
@@ -17,8 +17,8 @@ Godot project lives in `memory-game/`.
 | 3 | Match / mismatch + tile states | **Done** |
 | 4 | Combat — HP + enemy timer | **Done** |
 | 5 | Effects — attack + heal | **Done** |
-| 6 | Effects — slow, speed, upgrade | **Next** |
-| 7 | Board refresh when cleared | Not started |
+| 6 | Effects — slow, speed, upgrade | **Done** |
+| 7 | Board refresh when cleared | **Next** |
 | 8 | Win / lose + battle end | Not started |
 
 ---
@@ -27,20 +27,32 @@ Godot project lives in `memory-game/`.
 
 | System | Done |
 |--------|------|
-| Scenes | `Main`, `Board`, `Selector`, `Tile`, `Combat`, `HUD`, `EffectResolver` |
-| Movement | WASD, 0.25s cooldown, grid clamping |
+| Scenes | `Main` (orchestrator), `Board`, `Selector`, `Tile`, `Combat`, `HUD`, `EffectResolver` |
+| Movement | WASD, base 0.25s cooldown, grid clamping, speed stacks |
 | Input | `move_*` actions, `reveal` (Space) |
 | Board | 4×4 spawn, shuffled pair ids (0–7), `pair_matched` signal |
 | Selection FSM | `IDLE` → `ONE_SELECTED` → resolve |
 | Match | Same `pair_id` → `make_empty()` + emit |
 | Mismatch | Grey face, 1s freeze, 4s cover fade → `conceal()` |
 | Tile states | `HIDDEN`, `REVEALED`, `GREYED`, `EMPTY` |
-| Pair colors | 0–2 Attack, 3–4 Heal, 5 Slow, 6 Speed, 7 Upgrade |
-| Combat | Player/enemy HP, enemy timer, heal/damage APIs |
+| Pair ids | 0–2 Attack, 3–4 Heal, 5 Slow, 6 Speed, 7 Upgrade |
+| Combat | HP, enemy timer, heal/damage, slow stacks, attack bonus |
 | HUD | HP labels via `hp_changed` |
-| Effects | Attack (−3 enemy), Heal (+4 player) via EffectResolver |
+| Effects | Full pair table via EffectResolver |
 
-**Not yet:** slow/speed/upgrade buffs, new board when cleared, win/lose UI.
+**Not yet:** new board when cleared, win/lose UI / end battle.
+
+---
+
+## Effect reference (current numbers)
+
+| pair_id | Effect | Implementation |
+|---------|--------|----------------|
+| 0–2 | Attack | `damage_enemy(3 + attack_bonus)` |
+| 3–4 | Heal | `heal_player(4)` |
+| 5 | Slow | Combat: stacks 1–3, +25% enemy interval each, 10s refresh |
+| 6 | Speed | Selector: stacks 1–3, −0.05s cooldown each (min 0.1), 10s refresh |
+| 7 | Upgrade | Combat: `attack_bonus += 1` for rest of battle |
 
 ---
 
@@ -97,23 +109,27 @@ Tile uses `Face` + `Cover` layers. States: `GREYED`, `EMPTY` added. Greyed tiles
 
 ### Step 5 — Effects — attack + heal ✅
 
-Board emits `pair_matched(pair_id)`. EffectResolver maps ids 0–2 → `damage_enemy(3)`, ids 3–4 → `heal_player(4)`. Ids 5–7 stubbed for Step 6.
+Board emits `pair_matched(pair_id)`. EffectResolver maps ids 0–2 → `damage_enemy(3)`, ids 3–4 → `heal_player(4)`.
 
 **Validates:** Board decoupled from Combat; first real match consequences.
 
-**Key files:** `board.gd`, `effect_resolver.gd`, `main.gd`.
+**Key files:** `board.gd`, `scripts/effects/effect_resolver.gd`, `main.gd`.
 
 ---
 
-### Step 6 — Effects — slow, speed, upgrade
+### Step 6 — Effects — slow, speed, upgrade ✅
 
-Add remaining pair types from the GDD:
+Full pair table wired through EffectResolver:
 
-- **Slow** (id 5) — enemy attacks less often (timed buff, stacks up to 3)
-- **Speed** (id 6) — faster selector movement (timed buff, stacks up to 3)
-- **Upgrade** (id 7) — +1 attack damage for rest of battle
+- **Slow (5)** — `Combat.apply_slow()`; stacks ≤ 3; interval via `get_attack_interval()`; 10s expiry
+- **Speed (6)** — `Selector.apply_speed()`; stacks ≤ 3; move cooldown via `get_move_cooldown()`; 10s expiry
+- **Upgrade (7)** — `Combat.add_attack_bonus(1)`; permanent for battle; attacks use `ATTACK_DAMAGE + attack_bonus`
 
-**Validates:** buff timers, stacking, selector move cooldown modification.
+Buff state lives where it affects gameplay: **Combat** (slow, upgrade), **Selector** (speed). EffectResolver only dispatches.
+
+**Validates:** buff timers, stacking, move cooldown modification, attack scaling.
+
+**Key files:** `effect_resolver.gd`, `combat.gd`, `selector.gd`, `main.gd` (`setup(combat, selector)`).
 
 ---
 

@@ -1,21 +1,22 @@
 extends Node2D
 
-@onready var board: Board = $Board
-@onready var selector: Selector = $Selector
-@onready var combat: Combat = $Combat
-@onready var player_hp_label: Label = $HUD/VBoxContainer/PlayerHPLabel
-@onready var enemy_hp_label: Label = $HUD/VBoxContainer/EnemyHPLabel
-@onready var effect_resolver: EffectResolver = $EffectResolver
+@onready var _board: Board = $Board
+@onready var _selector: Selector = $Selector
+@onready var _combat: Combat = $Combat
+@onready var _player_hp_label: Label = $HUD/VBoxContainer/PlayerHPLabel
+@onready var _enemy_hp_label: Label = $HUD/VBoxContainer/EnemyHPLabel
+@onready var _effect_resolver: EffectResolver = $EffectResolver
+
 
 func _ready() -> void:
-	selector.setup(board)
-	board.setup(selector)
-	combat.hp_changed.connect(_on_hp_changed)
-	_on_hp_changed(combat.player_hp, combat.enemy_hp)
-	effect_resolver.setup(combat)
-	board.pair_matched.connect(effect_resolver.apply)
+	_selector.setup(_board)
+	_board.setup(_selector)
+	_combat.hp_changed.connect(_on_hp_changed)
+	_on_hp_changed(_combat.player_hp, _combat.enemy_hp)
+	_effect_resolver.setup(_combat, _selector)
+	_board.pair_matched.connect(_effect_resolver.apply)
 
 
 func _on_hp_changed(player_hp: int, enemy_hp: int) -> void:
-	player_hp_label.text = "Player: %d" % player_hp
-	enemy_hp_label.text = "Enemy: %d" % enemy_hp
+	_player_hp_label.text = "Player: %d" % player_hp
+	_enemy_hp_label.text = "Enemy: %d" % enemy_hp
