@@ -260,8 +260,8 @@ Status tracked in [WORK_PLAN.md](WORK_PLAN.md). Each step should be playable bef
 | 4 | `Combat` — HP labels, enemy timer | Done |
 | 5 | `EffectResolver` — attack + heal | Done |
 | 6 | Slow / speed / upgrade buffs | Done |
-| 7 | `board_cleared` / `board_dealt` | Next |
-| 8 | Win / lose + `ENDED` | Not started |
+| 7 | `board_cleared` / `board_dealt` | Done |
+| 8 | Win / lose + `ENDED` + clearer HUD | Next |
 
 ---
 

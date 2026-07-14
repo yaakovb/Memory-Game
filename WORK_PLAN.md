@@ -4,7 +4,7 @@ Living checklist for MVP implementation. Gameplay rules: [GAME_DESIGN.md](GAME_D
 
 Godot project lives in `memory-game/`.
 
-**Last updated:** Step 6 complete — ready for Step 7.
+**Last updated:** Step 7 complete — ready for Step 8.
 
 ---
 
@@ -18,8 +18,8 @@ Godot project lives in `memory-game/`.
 | 4 | Combat — HP + enemy timer | **Done** |
 | 5 | Effects — attack + heal | **Done** |
 | 6 | Effects — slow, speed, upgrade | **Done** |
-| 7 | Board refresh when cleared | **Next** |
-| 8 | Win / lose + battle end | Not started |
+| 7 | Board refresh when cleared | **Done** |
+| 8 | Win / lose + battle end | **Next** |
 
 ---
 
@@ -39,8 +39,9 @@ Godot project lives in `memory-game/`.
 | Combat | HP, enemy timer, heal/damage, slow stacks, attack bonus |
 | HUD | HP labels via `hp_changed` |
 | Effects | Full pair table via EffectResolver |
+| Board refresh | Clear all pairs → new shuffled board (`board_cleared` / `board_dealt`) |
 
-**Not yet:** new board when cleared, win/lose UI / end battle.
+**Not yet:** win/lose UI / end battle.
 
 ---
 
@@ -133,17 +134,21 @@ Buff state lives where it affects gameplay: **Combat** (slow, upgrade), **Select
 
 ---
 
-### Step 7 — Board refresh when cleared
+### Step 7 — Board refresh when cleared ✅
 
-When all pairs on the current board are removed, deal a new shuffled board. Battle continues until win or lose — clearing a board alone does not end the fight.
+Tracks `_pairs_remaining`. On match, decrement. When 0: emit `board_cleared`, free tiles, wait one frame, `_spawn_grid()` (new shuffle), emit `board_dealt`. Fight continues; clearing a board alone does not end battle.
 
-**Validates:** `board_cleared` / `board_dealt` flow, multi-board fights.
+**Validates:** multi-board fights without restarting the scene.
+
+**Key files:** `board.gd` (`board_cleared`, `board_dealt`, `_deal_new_board`).
 
 ---
 
 ### Step 8 — Win / lose + battle end
 
 Win when enemy HP ≤ 0. Lose when player HP ≤ 0. Stop input, end battle state. MVP loop is playable start to finish.
+
+Also improve feedback UI so HP, buffs, and battle result are easy to read (see discussion in chat).
 
 **Validates:** full single-battle loop, `ENDED` input gate.
 
