@@ -1,17 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://bpdhvf4nrfa4h"]
+[gd_scene format=3 uid="uid://bpdhvf4nrfa4h"]
 
 [ext_resource type="Script" uid="uid://bfwbp1sjgs2lc" path="res://scripts/tile/tile.gd" id="1_ts3a1"]
 
-[node name="Tile" type="Node2D"]
+[node name="Tile" type="Node2D" unique_id=371637966]
 script = ExtResource("1_ts3a1")
 
-[node name="Face" type="ColorRect" parent="."]
+[node name="Face" type="ColorRect" parent="." unique_id=1540866695]
 offset_right = 64.0
 offset_bottom = 64.0
 color = Color(0.22745098, 0.22745098, 0.22745098, 1)
 
-[node name="Cover" type="ColorRect" parent="."]
+[node name="Cover" type="ColorRect" parent="." unique_id=551356375]
+modulate = Color(1, 1, 1, 0)
 offset_right = 64.0
 offset_bottom = 64.0
 color = Color(0.15, 0.15, 0.15, 1)
-modulate = Color(1, 1, 1, 0)
+
+[node name="SelectionOutline" type="Line2D" parent="." unique_id=1885160207]
+visible = false
+points = PackedVector2Array(4, 4, 60, 4, 60, 60, 4, 60)
+closed = true
+width = 6.0
+default_color = Color(1, 1, 0, 1)

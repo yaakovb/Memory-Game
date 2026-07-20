@@ -17,6 +17,7 @@ const PAIR_COLORS := [
 
 @onready var _face: ColorRect = $Face
 @onready var _cover: ColorRect = $Cover
+@onready var _selection_outline: Line2D = $SelectionOutline
 
 var pair_id: int = -1
 var _state := State.HIDDEN
@@ -48,6 +49,7 @@ func make_empty() -> void:
 	_state = State.EMPTY
 	_face.visible = false
 	_cover.modulate.a = 0.0
+	_selection_outline.visible = false
 
 
 func grey_and_fade() -> void:
@@ -66,8 +68,13 @@ func is_hidden() -> bool:
 	return _state == State.HIDDEN
 
 
+func set_selected_outline(show_outline: bool) -> void:
+	_selection_outline.visible = show_outline
+
+
 func _reset_visuals() -> void:
 	_face.visible = true
 	_face.modulate = Color.WHITE
 	_face.color = HIDDEN_COLOR
 	_cover.modulate.a = 0.0
+	_selection_outline.visible = false

@@ -20,6 +20,7 @@ var _second_tile: Tile = null
 var _selector: Selector = null
 var _input_frozen := false
 var _pairs_remaining := 0
+var _first_tile_grid_pos := Vector2i(-1, -1)
 
 
 func setup(selector: Selector) -> void:
@@ -28,6 +29,10 @@ func setup(selector: Selector) -> void:
 
 func is_input_blocked() -> bool:
 	return _input_frozen
+
+
+func notify_selector_moved() -> void:
+	_update_selector_outline()
 
 
 func _ready() -> void:
@@ -62,10 +67,12 @@ func _deal_new_board() -> void:
 	_selection_state = SelectionState.IDLE
 	_first_tile = null
 	_second_tile = null
+	_first_tile_grid_pos = Vector2i(-1, -1)
 	_input_frozen = false
 	_clear_tiles()
 	await get_tree().process_frame
 	_spawn_grid()
+	_update_selector_outline()
 
 
 func _generate_shuffled_pair_ids() -> Array:
@@ -121,6 +128,9 @@ func _try_reveal_selected_tile() -> void:
 		SelectionState.IDLE:
 			_selection_state = SelectionState.ONE_SELECTED
 			_first_tile = tile
+			_first_tile_grid_pos = _selector.grid_position
+			tile.set_selected_outline(true)
+			_update_selector_outline()
 		SelectionState.ONE_SELECTED:
 			if _first_tile == tile:
 				return
@@ -135,6 +145,10 @@ func _resolve_pair() -> void:
 	_first_tile = null
 	_second_tile = null
 	_selection_state = SelectionState.IDLE
+	_first_tile_grid_pos = Vector2i(-1, -1)
+
+	first.set_selected_outline(false)
+	_update_selector_outline()
 
 	if first.pair_id == second.pair_id:
 		first.make_empty()
@@ -154,3 +168,13 @@ func _resolve_mismatch(first: Tile, second: Tile) -> void:
 	second.grey_and_fade()
 	await get_tree().create_timer(FREEZE_DURATION).timeout
 	_input_frozen = false
+
+
+func _update_selector_outline() -> void:
+	if _selector == null:
+		return
+	var hide_on_first_pick := (
+		_selection_state == SelectionState.ONE_SELECTED
+		and _selector.grid_position == _first_tile_grid_pos
+	)
+	_selector.set_outline_visible(not hide_on_first_pick)
