@@ -44,13 +44,17 @@ Main (Node2D)                        ← project entry; wires systems (MVP orche
 ├── Selector (Node2D)                ← grid position, movement cooldown, visuals
 ├── Combat (Node)                    ← HP, enemy attack timer, slow stacks, attack bonus
 ├── EffectResolver (Node)            ← pair_id → combat/selector actions
-└── HUD (CanvasLayer)                ← HP labels (MVP: minimal)
-    └── VBoxContainer
-        ├── PlayerHPLabel
-        └── EnemyHPLabel
+└── HUD (CanvasLayer)                ← HP labels + end overlay
+    ├── VBoxContainer
+    │   ├── PlayerHPLabel
+    │   └── EnemyHPLabel
+    └── EndOverlay (Control)         ← hidden until battle ends
+        ├── Dim (ColorRect)
+        └── CenterContainer
+            └── EndLabel
 ```
 
-**Note:** A separate `Battle` scene was planned; MVP uses `Main` as the orchestrator. Introduce `Battle.tscn` later if Main grows (win/lose, multi-board) and you want a cleaner entry scene.
+**Note:** A separate `Battle` scene was planned; MVP uses `Main` as the orchestrator (wiring, battle end, HUD, restart). Introduce `Battle.tscn` later only if Main grows unwieldy.
 
 ### Scene files (current / planned)
 
@@ -66,22 +70,23 @@ Main (Node2D)                        ← project entry; wires systems (MVP orche
 
 | Node | Owns | Does NOT own |
 |------|------|----------------|
-| **Main** | Wiring (setup/connect), HUD text from `hp_changed` | Match rules, damage formulas |
-| **Board** | Grid size, tile positions, spawn/clear tiles, pick-two logic, match/mismatch | Player HP, enemy timer |
+| **Main** | Wiring (setup/connect), HUD text, battle end overlay, scene reload on restart | Match rules, damage formulas |
+| **Board** | Grid size, tile positions, spawn/clear tiles, pick-two logic, match/mismatch, **input gate when battle ended** | Player HP, enemy timer |
 | **Tile** | Visual state (hidden/revealed/greyed/empty), fade tween, `pair_id` | Whether two tiles match globally |
 | **Selector** | Grid coordinates, move cooldown, **speed stacks/timer** | Reading match rules |
 | **Combat** | Player/enemy HP, enemy attack timer, **slow stacks/timer**, **attack_bonus** | Which pair id means what |
 | **EffectResolver** | Map `pair_id` → method calls on Combat/Selector | Stack storage, HP math internals |
-| **HUD** | Display HP (optional: buff labels later) | Game rules |
+| **HUD** | Display HP, win/lose overlay | Game rules |
 
 ### Input ownership (MVP decision)
 
 | Input | Handled by | Notes |
 |-------|------------|-------|
-| WASD | **Selector** | Only when Battle input state is `PLAYING` |
-| Space | **Board** (via Battle routing) | Reveal tile at selector grid position |
+| WASD | **Selector** | Blocked when Board `is_input_blocked()` (mismatch freeze or battle ended) |
+| Space | **Board** | Reveal tile at selector grid position; blocked when frozen or battle ended |
+| R | **Main** | Reload scene after battle ends (`restart` action) |
 
-**Battle** checks input state before forwarding. Selector asks Battle `can_accept_input()` or Battle sets a flag on Selector. Either pattern works; pick one when implementing — default recommendation: **Battle gates, Selector moves, Board reveals**.
+**MVP decision:** Main orchestrates battle end; Board owns the input gate via `_input_frozen` (mismatch) and `_battle_ended`. Selector checks `Board.is_input_blocked()` before moving.
 
 ### Coordinate model
 
@@ -141,46 +146,46 @@ After resolve: emit `pair_matched` or `pair_mismatched`; both tiles updated; sel
 
 ---
 
-### 3. Input gate (`Battle.gd`)
+### 3. Input gate (implemented on `Board.gd`)
 
 Controls whether the player can act. Distinct from selector movement cooldown.
 
-| State | Meaning | Move | Space |
-|-------|---------|------|-------|
-| `PLAYING` | Normal play | Yes* | Yes |
-| `FROZEN` | After mismatch | No | No |
-| `ENDED` | Win or lose | No | No |
+| State / flag | Meaning | Move | Space |
+|--------------|---------|------|-------|
+| Normal | `_input_frozen == false`, `_battle_ended == false` | Yes* | Yes |
+| `FROZEN` | After mismatch (`_input_frozen`) | No | No |
+| `ENDED` | Win or lose (`_battle_ended`) | No | No |
 
 \*Move only when selector move cooldown allows.
 
 **Transitions:**
 
 ```
-PLAYING ──[pair_mismatched]──► FROZEN
-FROZEN ──[1s timer]──► PLAYING
-PLAYING ──[battle_ended]──► ENDED
-FROZEN ──[battle_ended]──► ENDED   (edge case: kill enemy during freeze)
+Normal ──[pair_mismatch]──► FROZEN
+FROZEN ──[1s timer]──► Normal
+Normal ──[battle ended]──► ENDED
+FROZEN ──[battle ended]──► ENDED   (edge case: kill enemy during freeze)
 ```
 
 ---
 
-### 4. Battle flow (`Battle.gd`)
+### 4. Battle flow (implemented on `Main.gd` + `Combat.gd`)
 
 High-level fight lifecycle.
 
 | State | Meaning |
 |-------|---------|
-| `IN_PROGRESS` | Fight active |
-| `ENDED` | Win or lose; input off |
+| `IN_PROGRESS` | `_battle_ended == false` on Main |
+| `ENDED` | Win or lose; input off; overlay visible |
 
 **Transitions:**
 
 ```
-IN_PROGRESS ──[player HP ≤ 0]──► ENDED (lost)
-IN_PROGRESS ──[enemy HP ≤ 0]──► ENDED (won)
+IN_PROGRESS ──[player HP ≤ 0]──► ENDED (lost)   → Combat emits player_defeated
+IN_PROGRESS ──[enemy HP ≤ 0]──► ENDED (won)     → Combat emits enemy_defeated
 ```
 
-`ENDED` aligns with input gate `ENDED`; can be one enum or two linked flags — implementation choice.
+Main connects defeat signals → `handle_battle_ended()` → sets flags on Board/Combat, shows EndOverlay. **R** reloads the scene.
 
 ---
 
@@ -209,20 +214,22 @@ Decay: when timer hits 0, reset that buff’s stacks to 0.
 | `board_cleared` | All pairs removed; only empty holes remain | none |
 | `board_dealt` | New 4×4 board placed and ready | none |
 | `effect_applied` | Effect logic finished applying | `effect_id` |
-| `battle_ended` | Win or lose | `won: bool` |
+| `player_defeated` | Player HP ≤ 0 | none |
+| `enemy_defeated` | Enemy HP ≤ 0 | none |
 
 ### Emitter → listener map
 
-| Signal | Emitter | Listeners (connect in Battle setup) |
+| Signal | Emitter | Listeners (connect in Main setup) |
 |--------|---------|-------------------------------------|
-| `pair_matched` | **Board** | Battle → EffectResolver; Battle handles tile removal side effects if needed |
-| `pair_mismatched` | **Board** | Battle (start freeze) |
-| `board_cleared` | **Board** | Battle (deal new board) |
-| `board_dealt` | **Board** | Battle, HUD (optional reset UI) |
-| `effect_applied` | **EffectResolver** | Combat (HP changes), Selector (speed), HUD |
-| `battle_ended` | **Battle** | HUD, Board/Selector (stop input) |
+| `pair_matched` | **Board** | EffectResolver |
+| `board_cleared` | **Board** | (internal — triggers `_deal_new_board`) |
+| `board_dealt` | **Board** | HUD (optional, Step 9) |
+| `hp_changed` | **Combat** | Main → HUD labels |
+| `player_defeated` | **Combat** | Main → battle end |
+| `enemy_defeated` | **Combat** | Main → battle end |
+| `effect_applied` | **EffectResolver** | HUD (optional, Step 9) |
 
-Combat may also emit internal signals or call Battle directly when HP hits zero — either `player_died` / `enemy_died` internally, then Battle emits `battle_ended`.
+Combat emits defeat signals when HP hits zero; Main reacts and stops Board/Combat input.
 
 ### Suggested flow (match)
 
@@ -261,7 +268,8 @@ Status tracked in [WORK_PLAN.md](WORK_PLAN.md). Each step should be playable bef
 | 5 | `EffectResolver` — attack + heal | Done |
 | 6 | Slow / speed / upgrade buffs | Done |
 | 7 | `board_cleared` / `board_dealt` | Done |
-| 8 | Win / lose + `ENDED` + clearer HUD | Next |
+| 8 | Win / lose + battle end + restart | Done |
+| 9 | Richer HUD (bars, buffs, pairs, last effect) | Next |
 
 ---
 

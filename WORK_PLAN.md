@@ -4,7 +4,7 @@ Living checklist for MVP implementation. Gameplay rules: [GAME_DESIGN.md](GAME_D
 
 Godot project lives in `memory-game/`.
 
-**Last updated:** Step 7 complete — ready for Step 8.
+**Last updated:** Step 8 complete — MVP loop playable. Ready for Step 9.
 
 ---
 
@@ -19,7 +19,8 @@ Godot project lives in `memory-game/`.
 | 5 | Effects — attack + heal | **Done** |
 | 6 | Effects — slow, speed, upgrade | **Done** |
 | 7 | Board refresh when cleared | **Done** |
-| 8 | Win / lose + battle end | **Next** |
+| 8 | Win / lose + battle end | **Done** |
+| 9 | Richer HUD | **Next** |
 
 ---
 
@@ -29,7 +30,7 @@ Godot project lives in `memory-game/`.
 |--------|------|
 | Scenes | `Main` (orchestrator), `Board`, `Selector`, `Tile`, `Combat`, `HUD`, `EffectResolver` |
 | Movement | WASD, base 0.25s cooldown, grid clamping, speed stacks |
-| Input | `move_*` actions, `reveal` (Space) |
+| Input | `move_*` actions, `reveal` (Space), `restart` (R) |
 | Board | 4×4 spawn, shuffled pair ids (0–7), `pair_matched` signal |
 | Selection FSM | `IDLE` → `ONE_SELECTED` → resolve |
 | Match | Same `pair_id` → `make_empty()` + emit |
@@ -37,11 +38,12 @@ Godot project lives in `memory-game/`.
 | Tile states | `HIDDEN`, `REVEALED`, `GREYED`, `EMPTY` |
 | Pair ids | 0–2 Attack, 3–4 Heal, 5 Slow, 6 Speed, 7 Upgrade |
 | Combat | HP, enemy timer, heal/damage, slow stacks, attack bonus |
-| HUD | HP labels via `hp_changed` |
+| HUD | HP labels via `hp_changed`; end overlay (dim + win/lose text) |
 | Effects | Full pair table via EffectResolver |
 | Board refresh | Clear all pairs → new shuffled board (`board_cleared` / `board_dealt`) |
+| Battle end | `player_defeated` / `enemy_defeated` → stop input + combat; R reloads scene |
 
-**Not yet:** win/lose UI / end battle.
+**Not yet:** HP bars, buff row, pairs remaining, last-effect text (Step 9).
 
 ---
 
@@ -144,13 +146,40 @@ Tracks `_pairs_remaining`. On match, decrement. When 0: emit `board_cleared`, fr
 
 ---
 
-### Step 8 — Win / lose + battle end
+### Step 8 — Win / lose + battle end ✅
 
-Win when enemy HP ≤ 0. Lose when player HP ≤ 0. Stop input, end battle state. MVP loop is playable start to finish.
+Win when enemy HP ≤ 0. Lose when player HP ≤ 0.
 
-Also improve feedback UI so HP, buffs, and battle result are easy to read (see discussion in chat).
+**Implemented:**
 
-**Validates:** full single-battle loop, `ENDED` input gate.
+- `Combat` emits `player_defeated` / `enemy_defeated` when HP hits 0
+- `Main.handle_battle_ended()` sets `_battle_ended` on Main, Board, and Combat
+- Board blocks reveal + selector movement via `is_input_blocked()`; Combat stops `_process`
+- `HUD/EndOverlay`: semi-transparent dim + centered win/lose label
+- **R** (`restart` action) reloads the scene after battle ends
+
+**Validates:** full single-battle loop from start to win/lose/restart.
+
+**Key files:** `main.gd`, `main.tscn`, `board.gd`, `combat.gd`, `project.godot` (Input Map).
+
+---
+
+### Step 9 — Richer HUD
+
+Improve in-fight feedback so HP, buffs, and recent actions are easy to read at a glance.
+
+**Planned UI pieces:**
+
+| UI piece | Data source | Notes |
+|----------|-------------|-------|
+| HP bars | `Combat` HP + max HP | `ProgressBar` nodes; update in `_on_hp_changed` |
+| Pairs remaining | `Board._pairs_remaining` | Expose `get_pairs_remaining()`; refresh on `board_dealt` |
+| Buff row | Slow stacks, speed stacks, attack bonus | Small getters on Combat/Selector |
+| Last effect | EffectResolver | Emit `effect_applied(text)` on match resolve |
+
+Keep HUD updates in **Main** — same pattern as HP labels today. Layout: panel to the right of the board (~x=300).
+
+**Validates:** readable battle state without opening the inspector.
 
 ---
 
