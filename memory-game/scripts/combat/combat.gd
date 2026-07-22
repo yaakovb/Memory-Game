@@ -18,6 +18,7 @@ var player_hp: int
 var enemy_hp: int
 ## Public — EffectResolver reads this when resolving attack matches.
 var attack_bonus := 0
+var _battle_ended := false
 
 var _timer := 0.0
 var _slow_stacks := 0
@@ -31,6 +32,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _battle_ended == true:
+		return
 	_timer += delta
 	if _timer >= get_attack_interval():
 		_timer = 0.0
@@ -75,3 +78,6 @@ func apply_slow() -> void:
 
 func get_attack_interval() -> float:
 	return enemy_interval*(1.0 + _slow_stacks*SLOW_PER_STACK)
+
+func set_battle_ended(value: bool) -> void:
+	_battle_ended = value

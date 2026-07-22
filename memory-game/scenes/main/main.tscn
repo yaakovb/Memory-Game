@@ -32,5 +32,36 @@ theme_override_font_sizes/font_size = 20
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 
+[node name="EndOverlay" type="Control" parent="HUD" unique_id=2086048374]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="HUD/EndOverlay" unique_id=376486046]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5568628)
+
+[node name="CenterContainer" type="CenterContainer" parent="HUD/EndOverlay" unique_id=64647254]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="EndLabel" type="Label" parent="HUD/EndOverlay/CenterContainer" unique_id=1267826342]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Game Finished"
+
 [node name="EffectResolver" type="Node" parent="." unique_id=1481535586]
 script = ExtResource("5_6q06x")

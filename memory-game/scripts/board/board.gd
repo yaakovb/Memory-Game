@@ -21,6 +21,11 @@ var _selector: Selector = null
 var _input_frozen := false
 var _pairs_remaining := 0
 var _first_tile_grid_pos := Vector2i(-1, -1)
+var _battle_ended := false
+
+
+func set_battle_ended(value: bool) -> void:
+	_battle_ended = value
 
 
 func setup(selector: Selector) -> void:
@@ -28,7 +33,7 @@ func setup(selector: Selector) -> void:
 
 
 func is_input_blocked() -> bool:
-	return _input_frozen
+	return _input_frozen or _battle_ended
 
 
 func notify_selector_moved() -> void:
@@ -104,7 +109,7 @@ func get_tile_at(grid_pos: Vector2i) -> Tile:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _input_frozen:
+	if _input_frozen or _battle_ended:
 		return
 	if not event.is_action_pressed("reveal"):
 		return
