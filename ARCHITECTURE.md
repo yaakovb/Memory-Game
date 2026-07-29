@@ -51,7 +51,9 @@ Main (Node2D)                        ← project entry; wires systems (MVP orche
     └── EndOverlay (Control)         ← hidden until battle ends
         ├── Dim (ColorRect)
         └── CenterContainer
-            └── EndLabel
+            └── VBoxContainer
+                ├── EndLabel
+                └── RestartHint
 ```
 
 **Note:** A separate `Battle` scene was planned; MVP uses `Main` as the orchestrator (wiring, battle end, HUD, restart). Introduce `Battle.tscn` later only if Main grows unwieldy.
@@ -82,11 +84,11 @@ Main (Node2D)                        ← project entry; wires systems (MVP orche
 
 | Input | Handled by | Notes |
 |-------|------------|-------|
-| WASD | **Selector** | Blocked when Board `is_input_blocked()` (mismatch freeze or battle ended) |
-| Space | **Board** | Reveal tile at selector grid position; blocked when frozen or battle ended |
+| WASD | **Selector** | Blocked when battle ended (`Board.is_input_blocked()`) |
+| Space | **Board** | Reveal tile at selector grid position; blocked when battle ended |
 | R | **Main** | Reload scene after battle ends (`restart` action) |
 
-**MVP decision:** Main orchestrates battle end; Board owns the input gate via `_input_frozen` (mismatch) and `_battle_ended`. Selector checks `Board.is_input_blocked()` before moving.
+**MVP decision:** Main orchestrates battle end; Board blocks input only via `_battle_ended`. Selector checks `Board.is_input_blocked()` before moving.
 
 ### Coordinate model
 
@@ -152,8 +154,7 @@ Controls whether the player can act. Distinct from selector movement cooldown.
 
 | State / flag | Meaning | Move | Space |
 |--------------|---------|------|-------|
-| Normal | `_input_frozen == false`, `_battle_ended == false` | Yes* | Yes |
-| `FROZEN` | After mismatch (`_input_frozen`) | No | No |
+| Normal | `_battle_ended == false` | Yes* | Yes |
 | `ENDED` | Win or lose (`_battle_ended`) | No | No |
 
 \*Move only when selector move cooldown allows.
@@ -161,11 +162,10 @@ Controls whether the player can act. Distinct from selector movement cooldown.
 **Transitions:**
 
 ```
-Normal ──[pair_mismatch]──► FROZEN
-FROZEN ──[1s timer]──► Normal
 Normal ──[battle ended]──► ENDED
-FROZEN ──[battle ended]──► ENDED   (edge case: kill enemy during freeze)
 ```
+
+Mismatch does **not** freeze input. Wrong pairs still grey/fade tiles and hurry the enemy attack timer.
 
 ---
 
@@ -222,12 +222,13 @@ Decay: when timer hits 0, reset that buff’s stacks to 0.
 | Signal | Emitter | Listeners (connect in Main setup) |
 |--------|---------|-------------------------------------|
 | `pair_matched` | **Board** | EffectResolver |
+| `pair_mismatched` | **Board** | Combat → `hurry_next_attack(0.5)` |
 | `board_cleared` | **Board** | (internal — triggers `_deal_new_board`) |
-| `board_dealt` | **Board** | HUD (optional, Step 9) |
-| `hp_changed` | **Combat** | Main → HUD labels |
+| `board_dealt` | **Board** | — |
+| `hp_changed` | **Combat** | Main → HUD labels + bars |
 | `player_defeated` | **Combat** | Main → battle end |
 | `enemy_defeated` | **Combat** | Main → battle end |
-| `effect_applied` | **EffectResolver** | HUD (optional, Step 9) |
+| `effect_applied` | **EffectResolver** | Main → last-effect label |
 
 Combat emits defeat signals when HP hits zero; Main reacts and stops Board/Combat input.
 
@@ -247,10 +248,9 @@ Combat emits defeat signals when HP hits zero; Main reacts and stops Board/Comba
 
 ```
 1. Board: no match → emit pair_mismatched
-2. Battle: input gate → FROZEN; start 1s timer
-3. Board: both tiles → GREYED; start 4s fade tween each
-4. Battle: after 1s → PLAYING
-5. Tile: after 4s fade → HIDDEN
+2. Combat: hurry_next_attack(0.5) — enemy attack bar jumps forward
+3. Board: both tiles → GREYED; start 4s fade tween each (player can keep acting)
+4. Tile: after 4s fade → HIDDEN
 ```
 
 ---
@@ -269,7 +269,7 @@ Status tracked in [WORK_PLAN.md](WORK_PLAN.md). Each step should be playable bef
 | 6 | Slow / speed / upgrade buffs | Done |
 | 7 | `board_cleared` / `board_dealt` | Done |
 | 8 | Win / lose + battle end + restart | Done |
-| 9 | Richer HUD (bars, buffs, pairs, last effect) | Next |
+| 9 | Richer HUD (bars, buffs, attack timer, last effect) | Done |
 
 ---
 

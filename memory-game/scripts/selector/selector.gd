@@ -79,3 +79,6 @@ func apply_speed() -> void:
 
 func get_move_cooldown() -> float:
 	return maxf(BASE_MOVE_COOLDOWN - _speed_stacks * SPEED_PER_STACK, MIN_MOVE_COOLDOWN)
+
+func get_speed_stacks() -> int:
+	return _speed_stacks

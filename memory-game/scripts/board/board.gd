@@ -3,13 +3,13 @@ extends Node2D
 
 const GRID_SIZE := 4
 const CELL_SIZE := 64
-const FREEZE_DURATION := 1.0
 
 @export var tile_scene: PackedScene = preload("res://scenes/board/Tile.tscn")
 
 enum SelectionState { IDLE, ONE_SELECTED, RESOLVING }
 
 signal pair_matched(pair_id: int)
+signal pair_mismatched
 signal board_cleared
 signal board_dealt
 
@@ -18,7 +18,6 @@ var _selection_state := SelectionState.IDLE
 var _first_tile: Tile = null
 var _second_tile: Tile = null
 var _selector: Selector = null
-var _input_frozen := false
 var _pairs_remaining := 0
 var _first_tile_grid_pos := Vector2i(-1, -1)
 var _battle_ended := false
@@ -33,7 +32,7 @@ func setup(selector: Selector) -> void:
 
 
 func is_input_blocked() -> bool:
-	return _input_frozen or _battle_ended
+	return _battle_ended
 
 
 func notify_selector_moved() -> void:
@@ -73,7 +72,6 @@ func _deal_new_board() -> void:
 	_first_tile = null
 	_second_tile = null
 	_first_tile_grid_pos = Vector2i(-1, -1)
-	_input_frozen = false
 	_clear_tiles()
 	await get_tree().process_frame
 	_spawn_grid()
@@ -109,7 +107,7 @@ func get_tile_at(grid_pos: Vector2i) -> Tile:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _input_frozen or _battle_ended:
+	if _battle_ended:
 		return
 	if not event.is_action_pressed("reveal"):
 		return
@@ -168,11 +166,9 @@ func _resolve_pair() -> void:
 
 
 func _resolve_mismatch(first: Tile, second: Tile) -> void:
-	_input_frozen = true
+	pair_mismatched.emit()
 	first.grey_and_fade()
 	second.grey_and_fade()
-	await get_tree().create_timer(FREEZE_DURATION).timeout
-	_input_frozen = false
 
 
 func _update_selector_outline() -> void:

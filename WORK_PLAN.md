@@ -4,7 +4,7 @@ Living checklist for MVP implementation. Gameplay rules: [GAME_DESIGN.md](GAME_D
 
 Godot project lives in `memory-game/`.
 
-**Last updated:** Step 8 complete — MVP loop playable. Ready for Step 9.
+**Last updated:** Step 9 complete. Mismatch attack hurry added.
 
 ---
 
@@ -20,7 +20,7 @@ Godot project lives in `memory-game/`.
 | 6 | Effects — slow, speed, upgrade | **Done** |
 | 7 | Board refresh when cleared | **Done** |
 | 8 | Win / lose + battle end | **Done** |
-| 9 | Richer HUD | **Next** |
+| 9 | Richer HUD | **Done** |
 
 ---
 
@@ -31,19 +31,17 @@ Godot project lives in `memory-game/`.
 | Scenes | `Main` (orchestrator), `Board`, `Selector`, `Tile`, `Combat`, `HUD`, `EffectResolver` |
 | Movement | WASD, base 0.25s cooldown, grid clamping, speed stacks |
 | Input | `move_*` actions, `reveal` (Space), `restart` (R) |
-| Board | 4×4 spawn, shuffled pair ids (0–7), `pair_matched` signal |
+| Board | 4×4 spawn, shuffled pair ids (0–7), `pair_matched` / `pair_mismatched` signals |
 | Selection FSM | `IDLE` → `ONE_SELECTED` → resolve |
 | Match | Same `pair_id` → `make_empty()` + emit |
-| Mismatch | Grey face, 1s freeze, 4s cover fade → `conceal()` |
+| Mismatch | Grey face, 4s cover fade → `conceal()`; **−0.5s to enemy attack timer**; **no input freeze** |
 | Tile states | `HIDDEN`, `REVEALED`, `GREYED`, `EMPTY` |
 | Pair ids | 0–2 Attack, 3–4 Heal, 5 Slow, 6 Speed, 7 Upgrade |
 | Combat | HP, enemy timer, heal/damage, slow stacks, attack bonus |
-| HUD | HP labels via `hp_changed`; end overlay (dim + win/lose text) |
-| Effects | Full pair table via EffectResolver |
+| HUD | HP labels + bars, enemy attack bar, buff row, last effect, end overlay + restart hint |
+| Effects | Full pair table via EffectResolver; `effect_applied` signal |
 | Board refresh | Clear all pairs → new shuffled board (`board_cleared` / `board_dealt`) |
 | Battle end | `player_defeated` / `enemy_defeated` → stop input + combat; R reloads scene |
-
-**Not yet:** HP bars, buff row, pairs remaining, last-effect text (Step 9).
 
 ---
 
@@ -51,7 +49,7 @@ Godot project lives in `memory-game/`.
 
 | pair_id | Effect | Implementation |
 |---------|--------|----------------|
-| 0–2 | Attack | `damage_enemy(3 + attack_bonus)` |
+| 0–2 | Attack | `damage_enemy()` → `3 + attack_bonus` |
 | 3–4 | Heal | `heal_player(4)` |
 | 5 | Slow | Combat: stacks 1–3, +25% enemy interval each, 10s refresh |
 | 6 | Speed | Selector: stacks 1–3, −0.05s cooldown each (min 0.1), 10s refresh |
@@ -65,82 +63,46 @@ Godot project lives in `memory-game/`.
 
 Build a 4×4 board of placeholder tiles and a selector highlight. WASD moves the selector on a discrete grid with a 0.25s cooldown. Positions are clamped so the selector cannot leave the board.
 
-**Validates:** coordinate system, scene instancing, input, Board ↔ Selector wiring via `Main`.
-
 **Key files:** `Tile.tscn`, `Board.tscn`, `Selector.tscn`, `Main.tscn`, `board.gd`, `selector.gd`, `main.gd`.
 
 ---
 
 ### Step 2 — Reveal + two-tile selection ✅
 
-Press Space to reveal the tile under the selector. Board tracks selection state (`IDLE` → `ONE_SELECTED`). Two-tile pick flow wired to Board.
-
-**Validates:** tile `reveal()` / `conceal()`, Board selection FSM, tile lookup by grid position.
+Press Space to reveal the tile under the selector. Board tracks selection state (`IDLE` → `ONE_SELECTED`).
 
 **Key files:** `tile.gd`, `board.gd`, Input Map action `reveal`.
-
-**Note:** Temporary 2s auto-conceal was replaced in Step 3.
 
 ---
 
 ### Step 3 — Match / mismatch + tile states ✅
 
-Assign a **pair id** (0–7) to each tile when the board is dealt. On second reveal, compare ids:
+- **Match** → empty holes + `pair_matched`
+- **Mismatch** → grey, 4s fade, attack hurry; emits `pair_mismatched`; player keeps moving
 
-- **Match** → remove both tiles (empty holes); selector can move through them
-- **Mismatch** → grey both tiles, 1s input freeze, 4s cover fade back to concealed
-
-Tile uses `Face` + `Cover` layers. States: `GREYED`, `EMPTY` added. Greyed tiles not selectable (`is_hidden()` only true when face-down).
-
-**Validates:** tile FSM, tweens, pair shuffle, memory-game core loop.
-
-**Key files:** `tile.gd`, `Tile.tscn`, `board.gd`, `selector.gd` (`is_input_blocked()`).
-
-**Gotcha fixed:** call `add_child(tile)` before `tile.setup()` so `@onready` nodes exist.
+**Key files:** `tile.gd`, `Tile.tscn`, `board.gd`, `selector.gd`.
 
 ---
 
 ### Step 4 — Combat — HP + enemy timer ✅
 
-`Combat` owns player/enemy HP and an enemy attack timer (default: every 4s, 2 damage). HUD labels update via `hp_changed`. Board play continues while combat runs.
-
-**Validates:** real-time pressure, combat independent of board selection, signal → HUD.
-
-**Key files:** `combat.gd`, `Main.tscn` (`Combat`, `HUD`), `main.gd`.
+**Key files:** `combat.gd`, `Main.tscn`, `main.gd`.
 
 ---
 
 ### Step 5 — Effects — attack + heal ✅
 
-Board emits `pair_matched(pair_id)`. EffectResolver maps ids 0–2 → `damage_enemy(3)`, ids 3–4 → `heal_player(4)`.
-
-**Validates:** Board decoupled from Combat; first real match consequences.
-
-**Key files:** `board.gd`, `scripts/effects/effect_resolver.gd`, `main.gd`.
+**Key files:** `board.gd`, `effect_resolver.gd`, `main.gd`.
 
 ---
 
 ### Step 6 — Effects — slow, speed, upgrade ✅
 
-Full pair table wired through EffectResolver:
-
-- **Slow (5)** — `Combat.apply_slow()`; stacks ≤ 3; interval via `get_attack_interval()`; 10s expiry
-- **Speed (6)** — `Selector.apply_speed()`; stacks ≤ 3; move cooldown via `get_move_cooldown()`; 10s expiry
-- **Upgrade (7)** — `Combat.add_attack_bonus(1)`; permanent for battle; attacks use `ATTACK_DAMAGE + attack_bonus`
-
-Buff state lives where it affects gameplay: **Combat** (slow, upgrade), **Selector** (speed). EffectResolver only dispatches.
-
-**Validates:** buff timers, stacking, move cooldown modification, attack scaling.
-
-**Key files:** `effect_resolver.gd`, `combat.gd`, `selector.gd`, `main.gd` (`setup(combat, selector)`).
+**Key files:** `effect_resolver.gd`, `combat.gd`, `selector.gd`, `main.gd`.
 
 ---
 
 ### Step 7 — Board refresh when cleared ✅
-
-Tracks `_pairs_remaining`. On match, decrement. When 0: emit `board_cleared`, free tiles, wait one frame, `_spawn_grid()` (new shuffle), emit `board_dealt`. Fight continues; clearing a board alone does not end battle.
-
-**Validates:** multi-board fights without restarting the scene.
 
 **Key files:** `board.gd` (`board_cleared`, `board_dealt`, `_deal_new_board`).
 
@@ -148,38 +110,36 @@ Tracks `_pairs_remaining`. On match, decrement. When 0: emit `board_cleared`, fr
 
 ### Step 8 — Win / lose + battle end ✅
 
-Win when enemy HP ≤ 0. Lose when player HP ≤ 0.
+- Defeat signals → `Main.handle_battle_ended()`
+- Input + combat stop; dim overlay; **R** reloads scene
+- End overlay shows **"Press R to restart"**
 
-**Implemented:**
-
-- `Combat` emits `player_defeated` / `enemy_defeated` when HP hits 0
-- `Main.handle_battle_ended()` sets `_battle_ended` on Main, Board, and Combat
-- Board blocks reveal + selector movement via `is_input_blocked()`; Combat stops `_process`
-- `HUD/EndOverlay`: semi-transparent dim + centered win/lose label
-- **R** (`restart` action) reloads the scene after battle ends
-
-**Validates:** full single-battle loop from start to win/lose/restart.
-
-**Key files:** `main.gd`, `main.tscn`, `board.gd`, `combat.gd`, `project.godot` (Input Map).
+**Key files:** `main.gd`, `main.tscn`, `board.gd`, `combat.gd`, `project.godot`.
 
 ---
 
-### Step 9 — Richer HUD
+### Step 9 — Richer HUD ✅
 
-Improve in-fight feedback so HP, buffs, and recent actions are easy to read at a glance.
-
-**Planned UI pieces:**
+**Implemented:**
 
 | UI piece | Data source | Notes |
 |----------|-------------|-------|
-| HP bars | `Combat` HP + max HP | `ProgressBar` nodes; update in `_on_hp_changed` |
-| Pairs remaining | `Board._pairs_remaining` | Expose `get_pairs_remaining()`; refresh on `board_dealt` |
-| Buff row | Slow stacks, speed stacks, attack bonus | Small getters on Combat/Selector |
-| Last effect | EffectResolver | Emit `effect_applied(text)` on match resolve |
+| HP bars | `Combat` HP + max HP | `ProgressBar`; max set before value in `_ready` |
+| Enemy attack bar | `Combat.get_attack_progress()` | Fills over interval; orange fill; updates in `_process` |
+| Buff row | Slow / speed stacks, attack damage | `HBoxContainer`; getters on Combat + Selector |
+| Last effect | `EffectResolver.effect_applied` | Label updates on match |
 
-Keep HUD updates in **Main** — same pattern as HP labels today. Layout: panel to the right of the board (~x=300).
+HUD wiring stays in **Main**; panel to the right of the board (~x=300).
 
-**Validates:** readable battle state without opening the inspector.
+**Key files:** `main.tscn`, `main.gd`, `combat.gd`, `selector.gd`, `effect_resolver.gd`.
+
+---
+
+## Post-MVP gameplay tweak ✅
+
+**Mismatch attack hurry:** On wrong pair, `Board` emits `pair_mismatched` → `Combat.hurry_next_attack(0.5)` advances the enemy attack timer by 0.5 s (visible on the attack bar). No direct HP loss.
+
+**Key files:** `board.gd`, `combat.gd`, `main.gd`, [GAME_DESIGN.md](GAME_DESIGN.md).
 
 ---
 

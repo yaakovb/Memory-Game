@@ -13,6 +13,8 @@ signal enemy_defeated
 const MAX_SLOW_STACKS := 3
 const SLOW_DURATION := 10.0
 const SLOW_PER_STACK := 0.25
+const BASE_ATTACK_DAMAGE := 3
+const MISMATCH_ATTACK_HURRY := 0.5
 
 var player_hp: int
 var enemy_hp: int
@@ -52,11 +54,13 @@ func damage_player(amount: int) -> void:
 		player_defeated.emit()
 
 
-func damage_enemy(amount: int) -> void:
+func damage_enemy() -> int:
+	var amount = BASE_ATTACK_DAMAGE + attack_bonus
 	enemy_hp = maxi(enemy_hp - amount, 0)
 	hp_changed.emit(player_hp, enemy_hp)
 	if enemy_hp <= 0:
 		enemy_defeated.emit()
+	return amount;
 
 
 func heal_player(amount: int) -> void:
@@ -79,5 +83,23 @@ func apply_slow() -> void:
 func get_attack_interval() -> float:
 	return enemy_interval*(1.0 + _slow_stacks*SLOW_PER_STACK)
 
+func get_slow_stacks() -> int:
+	return _slow_stacks
+
+func get_attack_progress() -> float:
+	var interval = get_attack_interval()
+	if interval <= 0.0:
+		return 0.0
+	return clampf(_timer / interval, 0.0, 1.0)
+
 func set_battle_ended(value: bool) -> void:
 	_battle_ended = value
+
+func get_player_attack_damage() -> int:
+	return BASE_ATTACK_DAMAGE + attack_bonus
+
+
+func hurry_next_attack(amount: float = MISMATCH_ATTACK_HURRY) -> void:
+	if _battle_ended:
+		return
+	_timer = minf(_timer + amount, get_attack_interval())

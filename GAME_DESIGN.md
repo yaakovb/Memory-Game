@@ -91,11 +91,11 @@ Pair types are **shuffled** each time a board is dealt. Icons must be distinct a
 
 ### Mismatched
 1. Both tiles stay **face up** and enter a **greyed-out** state
-2. Player is **frozen for 1 second** (no movement, no reveal)
-3. Over **4 seconds**, a **cover fades in** until icons are fully hidden (face-down again)
-4. Fade starts **at mismatch (0s)**, in parallel with the freeze
-5. **Greyed tiles cannot be selected** during the fade
-6. **No HP penalty** on mismatch
+2. Over **4 seconds**, a **cover fades in** until icons are fully hidden (face-down again)
+3. Fade starts **immediately** at mismatch
+4. **Greyed tiles cannot be selected** during the fade
+5. **Player can keep moving and revealing** other tiles — no input freeze
+6. **Enemy attack pressure:** time until the next enemy attack is reduced by **0.5 s** (attack bar jumps forward; no direct HP loss)
 
 ### Stacking mismatches
 - Each mismatched pair fades **independently**
@@ -170,7 +170,6 @@ Clearing the board does **not** end the battle by itself. The player may clear m
 | State | Move | Reveal (Space) |
 |-------|------|----------------|
 | Normal | Yes (when move cooldown ready) | Yes |
-| Frozen (1s after mismatch) | No | No |
 | Battle ended | No | No |
 
 ---
@@ -182,7 +181,7 @@ Clearing the board does **not** end the battle by itself. The player may clear m
 2. Enemy attack timer runs (always)
 3. Player moves selector, reveals two tiles
 4. Match → effect applied, tiles removed (empty holes)
-5. Mismatch → 1s freeze + grey/fade over 4s → face-down again
+5. Mismatch → grey/fade over 4s + enemy attack hurry (0.5s) → face-down again; play continues
 6. If board fully cleared → deal new board (return to step 3)
 7. If enemy HP = 0 → win
 8. If player HP = 0 → lose
@@ -199,7 +198,7 @@ The first playable version includes:
 - 4×4 board, 8 pairs (composition above)
 - Cursor movement with cooldown
 - Tile reveal and matching logic
-- Mismatch freeze and grey/fade behavior
+- Mismatch grey/fade behavior and enemy attack hurry (no input freeze)
 - Empty holes; selector moves through them
 - New board when current board is fully cleared
 - Health system
@@ -275,8 +274,8 @@ These are placeholders — adjust during playtesting without restructuring syste
 | Speed reduction per stack | `−0.05` s | Max 3 stacks |
 | Minimum move cooldown | `0.1` s | Floor for speed stacks |
 | Base move cooldown | `0.25` s | Selector |
-| Freeze duration | `1` s | Mismatch input freeze |
 | Mismatch fade duration | `4` s | Cover tween |
+| Mismatch attack hurry | `0.5` s | Subtract from time until next enemy attack |
 | Buff duration | `10` s | Slow / speed refresh on reapply |
 
 ---
