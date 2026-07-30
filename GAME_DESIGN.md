@@ -91,7 +91,7 @@ Pair types are **shuffled** each time a board is dealt. Icons must be distinct a
 
 ### Mismatched
 1. Both tiles stay **face up** and enter a **greyed-out** state
-2. Over **4 seconds**, a **cover fades in** until icons are fully hidden (face-down again)
+2. Over **2.5 seconds**, a **cover fades in** until icons are fully hidden (face-down again)
 3. Fade starts **immediately** at mismatch
 4. **Greyed tiles cannot be selected** during the fade
 5. **Player can keep moving and revealing** other tiles — no input freeze
@@ -181,7 +181,7 @@ Clearing the board does **not** end the battle by itself. The player may clear m
 2. Enemy attack timer runs (always)
 3. Player moves selector, reveals two tiles
 4. Match → effect applied, tiles removed (empty holes)
-5. Mismatch → grey/fade over 4s + enemy attack hurry (0.5s) → face-down again; play continues
+5. Mismatch → grey/fade over 2.5s + enemy attack hurry (0.5s) → face-down again; play continues
 6. If board fully cleared → deal new board (return to step 3)
 7. If enemy HP = 0 → win
 8. If player HP = 0 → lose
@@ -274,7 +274,7 @@ These are placeholders — adjust during playtesting without restructuring syste
 | Speed reduction per stack | `−0.05` s | Max 3 stacks |
 | Minimum move cooldown | `0.1` s | Floor for speed stacks |
 | Base move cooldown | `0.25` s | Selector |
-| Mismatch fade duration | `4` s | Cover tween |
+| Mismatch fade duration | `2.5` s | Cover tween |
 | Mismatch attack hurry | `0.5` s | Subtract from time until next enemy attack |
 | Buff duration | `10` s | Slow / speed refresh on reapply |
 

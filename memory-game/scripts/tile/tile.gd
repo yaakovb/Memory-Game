@@ -4,6 +4,7 @@ extends Node2D
 enum State { HIDDEN, REVEALED, GREYED, EMPTY }
 
 const HIDDEN_COLOR := Color(0.23, 0.23, 0.23)
+const MISMATCH_FADE_DURATION := 2.5
 const PAIR_COLORS := [
 	Color(0.9, 0.3, 0.3),   # pair 0 — Attack
 	Color(0.3, 0.8, 0.4),   # pair 1 — Attack
@@ -60,7 +61,7 @@ func grey_and_fade() -> void:
 	_cover.modulate.a = 0.0
 
 	var tween := create_tween()
-	tween.tween_property(_cover, "modulate:a", 1.0, 4.0)
+	tween.tween_property(_cover, "modulate:a", 1.0, MISMATCH_FADE_DURATION)
 	tween.tween_callback(conceal)
 
 

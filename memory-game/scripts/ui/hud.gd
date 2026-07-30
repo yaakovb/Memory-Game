@@ -17,7 +17,6 @@ extends CanvasLayer
 
 var _combat: Combat
 var _selector: Selector
-var _battle_ended := false
 
 
 func setup(combat: Combat, selector: Selector) -> void:
@@ -40,15 +39,13 @@ func set_last_effect(description: String) -> void:
 
 
 func show_battle_end(message: String) -> void:
-	_battle_ended = true
 	_end_label.text = message
 	_end_overlay.visible = true
 	_attack_progress.value = 0.0
+	set_process(false)
 
 
 func _process(_delta: float) -> void:
-	if _battle_ended or _combat == null or _selector == null:
-		return
 	_attack_progress.value = _combat.get_attack_progress() * 100.0
 	_slow_label.text = "Slow: %d" % _combat.get_slow_stacks()
 	_speed_label.text = "Speed: %d" % _selector.get_speed_stacks()

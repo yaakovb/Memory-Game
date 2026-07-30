@@ -3,6 +3,8 @@ extends Node2D
 
 const GRID_SIZE := 4
 const CELL_SIZE := 64
+const TILE_GAP := 6
+const BOARD_MARGIN := 3
 
 @export var tile_scene: PackedScene = preload("res://scenes/board/Tile.tscn")
 
@@ -90,8 +92,8 @@ func _generate_shuffled_pair_ids() -> Array:
 
 func grid_to_world(grid_pos: Vector2i) -> Vector2:
 	return Vector2(
-		grid_pos.x * (CELL_SIZE + 6) + 3,
-		grid_pos.y * (CELL_SIZE + 6) + 3
+		grid_pos.x * (CELL_SIZE + TILE_GAP) + BOARD_MARGIN,
+		grid_pos.y * (CELL_SIZE + TILE_GAP) + BOARD_MARGIN
 	)
 
 
@@ -120,9 +122,11 @@ func _unhandled_input(event: InputEvent) -> void:
 func _try_reveal_selected_tile() -> void:
 	if _selection_state == SelectionState.RESOLVING:
 		return
+	if _selector == null:
+		return
 
 	var tile := get_tile_at(_selector.grid_position)
-	if _selector == null or tile == null or not tile.is_hidden():
+	if tile == null or not tile.is_hidden():
 		return
 
 	tile.reveal()
@@ -135,8 +139,6 @@ func _try_reveal_selected_tile() -> void:
 			tile.set_selected_outline(true)
 			_update_selector_outline()
 		SelectionState.ONE_SELECTED:
-			if _first_tile == tile:
-				return
 			_selection_state = SelectionState.RESOLVING
 			_second_tile = tile
 			_resolve_pair()

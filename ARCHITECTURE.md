@@ -161,7 +161,7 @@ Each cell on the board.
 HIDDEN ──[selected for reveal]──► REVEALED
 REVEALED ──[match resolved]──► EMPTY
 REVEALED ──[mismatch resolved]──► GREYED
-GREYED ──[fade complete, 4s]──► HIDDEN
+GREYED ──[fade complete, 2.5s]──► HIDDEN
 ```
 
 **Notes:**
@@ -292,8 +292,8 @@ Combat emits defeat signals when HP hits zero; Main reacts and stops Board/Comba
 ```
 1. Board: no match → emit pair_mismatched
 2. Combat: hurry_next_attack(0.5) — enemy attack bar jumps forward
-3. Board: both tiles → GREYED; start 4s fade tween each (player can keep acting)
-4. Tile: after 4s fade → HIDDEN
+3. Board: both tiles → GREYED; start 2.5s fade tween each (player can keep acting)
+4. Tile: after 2.5s fade → HIDDEN
 ```
 
 ---
