@@ -4,7 +4,7 @@ Living checklist for MVP implementation. Gameplay rules: [GAME_DESIGN.md](GAME_D
 
 Godot project lives in `memory-game/`.
 
-**Last updated:** Step 9 complete. Mismatch attack hurry added.
+**Last updated:** Step 10 complete — HUD extracted to `HUD.tscn` + `hud.gd`.
 
 ---
 
@@ -21,6 +21,7 @@ Godot project lives in `memory-game/`.
 | 7 | Board refresh when cleared | **Done** |
 | 8 | Win / lose + battle end | **Done** |
 | 9 | Richer HUD | **Done** |
+| 10 | Extract HUD to own scene | **Done** |
 
 ---
 
@@ -28,7 +29,7 @@ Godot project lives in `memory-game/`.
 
 | System | Done |
 |--------|------|
-| Scenes | `Main` (orchestrator), `Board`, `Selector`, `Tile`, `Combat`, `HUD`, `EffectResolver` |
+| Scenes | `Main`, `Board`, `Selector`, `Tile`, `Combat`, `HUD` (`HUD.tscn`), `EffectResolver` |
 | Movement | WASD, base 0.25s cooldown, grid clamping, speed stacks |
 | Input | `move_*` actions, `reveal` (Space), `restart` (R) |
 | Board | 4×4 spawn, shuffled pair ids (0–7), `pair_matched` / `pair_mismatched` signals |
@@ -129,9 +130,9 @@ Press Space to reveal the tile under the selector. Board tracks selection state 
 | Buff row | Slow / speed stacks, attack damage | `HBoxContainer`; getters on Combat + Selector |
 | Last effect | `EffectResolver.effect_applied` | Label updates on match |
 
-HUD wiring stays in **Main**; panel to the right of the board (~x=300).
+Main wires signals; **`hud.gd`** owns display logic and `_process` for attack bar + buffs. Panel to the right of the board (~x=300).
 
-**Key files:** `main.tscn`, `main.gd`, `combat.gd`, `selector.gd`, `effect_resolver.gd`.
+**Key files:** `scenes/ui/HUD.tscn`, `scripts/ui/hud.gd`, `main.gd`.
 
 ---
 
@@ -140,6 +141,22 @@ HUD wiring stays in **Main**; panel to the right of the board (~x=300).
 **Mismatch attack hurry:** On wrong pair, `Board` emits `pair_mismatched` → `Combat.hurry_next_attack(0.5)` advances the enemy attack timer by 0.5 s (visible on the attack bar). No direct HP loss.
 
 **Key files:** `board.gd`, `combat.gd`, `main.gd`, [GAME_DESIGN.md](GAME_DESIGN.md).
+
+---
+
+## Step 10 — Extract HUD to own scene ✅
+
+**Decision:** Push updates from Main for signal-driven UI (HP, last effect, battle end). HUD owns `_process` for attack bar + buff row after `setup(combat, selector)`.
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) — **HUD extraction** for full API and phase list.
+
+| Phase | Task | Status |
+|-------|------|--------|
+| 1 | Create `HUD.tscn`, move nodes from Main, instance in Main | Done |
+| 2 | Add `hud.gd`, move display logic from `main.gd` | Done |
+| 3 | Slim `main.gd` to wiring only | Done |
+
+**Key files:** `scenes/ui/HUD.tscn`, `scripts/ui/hud.gd`, `scenes/main/main.tscn`, `scripts/main/main.gd`.
 
 ---
 

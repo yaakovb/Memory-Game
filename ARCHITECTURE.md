@@ -44,41 +44,42 @@ Main (Node2D)                        ← project entry; wires systems (MVP orche
 ├── Selector (Node2D)                ← grid position, movement cooldown, visuals
 ├── Combat (Node)                    ← HP, enemy attack timer, slow stacks, attack bonus
 ├── EffectResolver (Node)            ← pair_id → combat/selector actions
-└── HUD (CanvasLayer)                ← HP labels + end overlay
-    ├── VBoxContainer
-    │   ├── PlayerHPLabel
-    │   └── EnemyHPLabel
+└── HUD (CanvasLayer)                ← instanced from scenes/ui/HUD.tscn
+    ├── VBoxContainer                ← in-fight stats panel
+    │   ├── PlayerHPLabel / PlayerHPBar
+    │   ├── EnemyHPLabel / EnemyHPBar
+    │   ├── EnemyAttackLabel / EnemyAttackBar
+    │   ├── BuffRow (HBoxContainer)
+    │   └── LastEffectLabel
     └── EndOverlay (Control)         ← hidden until battle ends
         ├── Dim (ColorRect)
-        └── CenterContainer
-            └── VBoxContainer
-                ├── EndLabel
-                └── RestartHint
+        └── CenterContainer → EndLabel, RestartHint
 ```
 
-**Note:** A separate `Battle` scene was planned; MVP uses `Main` as the orchestrator (wiring, battle end, HUD, restart). Introduce `Battle.tscn` later only if Main grows unwieldy.
+**Note:** MVP uses `Main` as the orchestrator. HUD lives in `HUD.tscn` + `hud.gd` (see **HUD extraction** below).
 
 ### Scene files (current / planned)
 
 | File | Root type | Purpose |
 |------|-----------|---------|
-| `scenes/main/main.tscn` | `Node2D` | Entry + wiring (current) |
-| `scenes/battle/Battle.tscn` | `Node` | Optional later — battle orchestration |
+| `scenes/main/main.tscn` | `Node2D` | Entry + system wiring |
+| `scenes/ui/HUD.tscn` | `CanvasLayer` | In-fight stats + end overlay |
 | `scenes/board/Board.tscn` | `Node2D` | Grid layout and tile container |
 | `scenes/board/Tile.tscn` | `Node2D` | Single cell (face + cover) |
 | `scenes/selector/selector.tscn` | `Node2D` | Cursor highlight on grid |
+| `scenes/battle/Battle.tscn` | `Node` | Optional later — battle orchestration |
 
 ### Responsibilities
 
 | Node | Owns | Does NOT own |
 |------|------|----------------|
-| **Main** | Wiring (setup/connect), HUD text, battle end overlay, scene reload on restart | Match rules, damage formulas |
+| **Main** | Signal wiring, battle-end flags on Board/Combat, restart input (`R`) | HUD layout, label text, bar math |
 | **Board** | Grid size, tile positions, spawn/clear tiles, pick-two logic, match/mismatch, **input gate when battle ended** | Player HP, enemy timer |
 | **Tile** | Visual state (hidden/revealed/greyed/empty), fade tween, `pair_id` | Whether two tiles match globally |
 | **Selector** | Grid coordinates, move cooldown, **speed stacks/timer** | Reading match rules |
 | **Combat** | Player/enemy HP, enemy attack timer, **slow stacks/timer**, **attack_bonus** | Which pair id means what |
 | **EffectResolver** | Map `pair_id` → method calls on Combat/Selector | Stack storage, HP math internals |
-| **HUD** | Display HP, win/lose overlay | Game rules |
+| **HUD** | Display: HP bars, attack timer bar, buff row, last effect, end overlay | Game rules, signal wiring, restart |
 
 ### Input ownership (MVP decision)
 
@@ -96,6 +97,48 @@ Main (Node2D)                        ← project entry; wires systems (MVP orche
 - **Selector** stores `grid_position: Vector2i`.
 - **Board** maps `Vector2i` → tile instance and world position.
 - **Empty holes** still occupy grid cells; selector moves through them; Space does nothing useful on `EMPTY`.
+
+---
+
+## HUD extraction ✅
+
+Move all UI out of `Main` into `HUD.tscn` + `hud.gd`. Main stays the orchestrator; HUD is a **view** with no game-rule logic.
+
+### Data flow pattern: **Push (A) + per-frame setup (C)**
+
+| Update type | Who drives it | How |
+|-------------|---------------|-----|
+| HP, last effect, battle-end overlay | **Main** (on signals) | Calls HUD public methods — e.g. `update_hp(...)`, `show_battle_end(message)` |
+| Attack timer bar, buff row | **HUD `_process`** | `setup(combat, selector)` once; HUD reads getters each frame |
+
+**Why not HUD connects all signals (B)?** Would couple HUD to Combat/Selector for every event. Main keeps the signal map visible in one place.
+
+### What stays in Main
+
+- Connect Board ↔ Combat ↔ EffectResolver
+- `handle_battle_ended()` → set flags on Board/Combat, then `_hud.show_battle_end(...)`
+- **R** restart → `get_tree().reload_current_scene()` (scene lifecycle, not UI)
+
+### Planned HUD public API (`hud.gd`)
+
+```gdscript
+func setup(combat: Combat, selector: Selector) -> void
+func update_hp(player_hp, player_max, enemy_hp, enemy_max) -> void
+func set_last_effect(description: String) -> void
+func show_battle_end(message: String) -> void
+```
+
+Attack bar + buff row update inside HUD `_process` after `setup()`.
+
+### Migration phases
+
+| Phase | Work | Script changes? |
+|-------|------|-----------------|
+| **1** | Create `HUD.tscn`, move nodes from Main, instance in Main | Done |
+| **2** | Add `hud.gd`, move display logic from `main.gd` | Done |
+| **3** | Slim `main.gd` to wiring only | Done |
+
+**Key files:** `scenes/ui/HUD.tscn`, `scripts/ui/hud.gd`, `scenes/main/main.tscn`, `scripts/main/main.gd`.
 
 ---
 
@@ -270,6 +313,7 @@ Status tracked in [WORK_PLAN.md](WORK_PLAN.md). Each step should be playable bef
 | 7 | `board_cleared` / `board_dealt` | Done |
 | 8 | Win / lose + battle end + restart | Done |
 | 9 | Richer HUD (bars, buffs, attack timer, last effect) | Done |
+| 10 | Extract HUD to `HUD.tscn` + `hud.gd` | Done |
 
 ---
 
@@ -285,14 +329,16 @@ Memory-Game/
     ├── scenes/
     │   ├── main/
     │   ├── board/
-    │   └── selector/
+    │   ├── selector/
+    │   └── ui/                  ← HUD.tscn (new)
     └── scripts/
         ├── main/
         ├── board/
         ├── tile/
         ├── selector/
         ├── combat/
-        └── effects/
+        ├── effects/
+        └── ui/                  ← hud.gd (phase 2)
 ```
 
 ---

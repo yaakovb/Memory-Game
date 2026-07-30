@@ -6,9 +6,9 @@ signal player_defeated
 signal enemy_defeated
 
 @export var player_max_hp := 20
-@export var enemy_max_hp := 30
+@export var enemy_max_hp := 15
 @export var enemy_damage := 2
-@export var enemy_interval := 4.0
+@export var enemy_interval := 5.0
 
 const MAX_SLOW_STACKS := 3
 const SLOW_DURATION := 10.0

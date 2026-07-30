@@ -5,9 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://cmjxhpsg72elh" path="res://scenes/selector/selector.tscn" id="3_selector_scene"]
 [ext_resource type="Script" uid="uid://b5ld6c7qco4jn" path="res://scripts/combat/combat.gd" id="4_l3cfh"]
 [ext_resource type="Script" uid="uid://syx5r5oij4gp" path="res://scripts/effects/effect_resolver.gd" id="5_6q06x"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hujxm"]
-bg_color = Color(0.92941177, 0.6, 0.16078432, 1)
+[ext_resource type="PackedScene" uid="uid://bi7p1c75skwe2" path="res://scenes/ui/hud.tscn" id="5_ow5a4"]
 
 [node name="Main" type="Node2D" unique_id=1803542411]
 script = ExtResource("1_main_script")
@@ -19,105 +17,7 @@ script = ExtResource("1_main_script")
 [node name="Combat" type="Node" parent="." unique_id=1683879358]
 script = ExtResource("4_l3cfh")
 
-[node name="HUD" type="CanvasLayer" parent="." unique_id=842769536]
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HUD" unique_id=170322431]
-anchors_preset = -1
-offset_left = 300.0
-offset_top = 16.0
-offset_right = 520.0
-offset_bottom = 220.0
-
-[node name="PlayerHPLabel" type="Label" parent="HUD/VBoxContainer" unique_id=2026167608]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-
-[node name="PlayerHPBar" type="ProgressBar" parent="HUD/VBoxContainer" unique_id=1192666583]
-custom_minimum_size = Vector2(200, 24)
-layout_mode = 2
-max_value = 20.0
-value = 20.0
-show_percentage = false
-
-[node name="EnemyHPLabel" type="Label" parent="HUD/VBoxContainer" unique_id=818310474]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-
-[node name="EnemyHPBar" type="ProgressBar" parent="HUD/VBoxContainer" unique_id=1180370033]
-custom_minimum_size = Vector2(200, 24)
-layout_mode = 2
-max_value = 20.0
-value = 20.0
-show_percentage = false
-
-[node name="EnemyAttackLabel" type="Label" parent="HUD/VBoxContainer" unique_id=2139508779]
-layout_mode = 2
-text = "Next Attack"
-
-[node name="EnemyAttackBar" type="ProgressBar" parent="HUD/VBoxContainer" unique_id=780356544]
-custom_minimum_size = Vector2(200, 16)
-layout_mode = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_hujxm")
-show_percentage = false
-
-[node name="BuffRow" type="HBoxContainer" parent="HUD/VBoxContainer" unique_id=634847670]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="AttackLabel" type="Label" parent="HUD/VBoxContainer/BuffRow" unique_id=338512620]
-layout_mode = 2
-
-[node name="SlowLabel" type="Label" parent="HUD/VBoxContainer/BuffRow" unique_id=483596525]
-layout_mode = 2
-
-[node name="SpeedLabel" type="Label" parent="HUD/VBoxContainer/BuffRow" unique_id=55600533]
-layout_mode = 2
-
-[node name="LastEffectLabel" type="Label" parent="HUD/VBoxContainer" unique_id=49879466]
-layout_mode = 2
-
-[node name="EndOverlay" type="Control" parent="HUD" unique_id=2086048374]
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Dim" type="ColorRect" parent="HUD/EndOverlay" unique_id=376486046]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.5568628)
-
-[node name="CenterContainer" type="CenterContainer" parent="HUD/EndOverlay" unique_id=64647254]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HUD/EndOverlay/CenterContainer"]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="EndLabel" type="Label" parent="HUD/EndOverlay/CenterContainer/VBoxContainer" unique_id=1267826342]
-layout_mode = 2
-theme_override_font_sizes/font_size = 48
-text = "Game Finished"
-horizontal_alignment = 1
-
-[node name="RestartHint" type="Label" parent="HUD/EndOverlay/CenterContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "Press R to restart"
-horizontal_alignment = 1
+[node name="HUD" parent="." unique_id=34967848 instance=ExtResource("5_ow5a4")]
 
 [node name="EffectResolver" type="Node" parent="." unique_id=1481535586]
 script = ExtResource("5_6q06x")
