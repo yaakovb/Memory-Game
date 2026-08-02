@@ -4,7 +4,7 @@ Living checklist for MVP implementation. Gameplay rules: [GAME_DESIGN.md](GAME_D
 
 Godot project lives in `memory-game/`.
 
-**Last updated:** Step 11 — effect icons on tiles (unique pair colors + shared effect icons).
+**Last updated:** MVP complete (Steps 1–12). See [AGENT_HANDOFF.md](AGENT_HANDOFF.md) for next-agent context.
 
 ---
 
@@ -23,6 +23,7 @@ Godot project lives in `memory-game/`.
 | 9 | Richer HUD | **Done** |
 | 10 | Extract HUD to own scene | **Done** |
 | 11 | Tile effect icons | **Done** |
+| 12 | Juice — match pop | **Done** |
 
 ---
 
@@ -45,6 +46,9 @@ Godot project lives in `memory-game/`.
 | Effects | Full pair table via EffectResolver; `effect_applied` signal |
 | Board refresh | Clear all pairs → new shuffled board (`board_cleared` / `board_dealt`) |
 | Battle end | `player_defeated` / `enemy_defeated` → stop input + combat; R reloads scene |
+| Juice | Match pop (scale + fade); reveal is instant (no punch) |
+
+**MVP status:** Playable single-battle loop is complete. Post-MVP ideas: [GAME_DESIGN.md](GAME_DESIGN.md) / [AGENT_HANDOFF.md](AGENT_HANDOFF.md).
 
 ---
 
@@ -175,6 +179,20 @@ Revealed tiles show a **white effect icon** on a **unique pair background color*
 **Tile scene order:** `Face` → `Icon` (`TextureRect`, Expand Ignore Size) → `Cover` → `SelectionOutline`.
 
 **Key files:** `Tile.tscn`, `tile.gd`, `assets/icons/*.svg`.
+
+---
+
+### Step 12 — Juice (match pop) ✅
+
+Short match tween on `Tile` (no SFX, no reveal punch):
+
+| Moment | Effect |
+|--------|--------|
+| Match | Scale up + fade out (~0.18s), then empty; effects still fire immediately |
+
+**Godot note:** `Node2D` scales from its origin (top-left), so juice adjusts `position` temporarily around the tile center, then restores the Board grid position.
+
+**Key files:** `tile.gd`, `board.gd` (awaits pop before board redeal).
 
 ---
 

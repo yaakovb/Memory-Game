@@ -156,11 +156,13 @@ func _resolve_pair() -> void:
 	_update_selector_outline()
 
 	if first.pair_id == second.pair_id:
-		first.make_empty()
-		second.make_empty()
+		first.play_match_pop()
+		second.play_match_pop()
 		pair_matched.emit(first.pair_id)
 		_pairs_remaining -= 1
 		if _pairs_remaining <= 0:
+			# Let the pop finish before freeing tiles for a new board.
+			await get_tree().create_timer(Tile.MATCH_POP_DURATION).timeout
 			board_cleared.emit()
 			_deal_new_board()
 	else:
