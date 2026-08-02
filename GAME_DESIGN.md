@@ -70,7 +70,12 @@ Keyboard only. Mouse support is not required.
 | Speed selector | 1 | Timed buff on move cooldown |
 | Upgrade attack | 1 | +1 attack damage for rest of battle |
 
-Pair types are **shuffled** each time a board is dealt. Icons must be distinct at a glance (color + shape for MVP; no art required initially).
+Pair types are **shuffled** each time a board is dealt.
+
+**Visuals (current):**
+- Each **pair id** has a unique background color (`PAIR_COLORS`)
+- Each **effect type** shares one icon (Attack / Heal / Slow / Speed / Upgrade) from `assets/icons/` ([game-icons.net](https://game-icons.net/), CC BY 3.0)
+- Hidden tiles show a neutral grey face with no icon
 
 ---
 

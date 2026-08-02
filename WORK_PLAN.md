@@ -4,7 +4,7 @@ Living checklist for MVP implementation. Gameplay rules: [GAME_DESIGN.md](GAME_D
 
 Godot project lives in `memory-game/`.
 
-**Last updated:** Step 10 complete — HUD extracted to `HUD.tscn` + `hud.gd`.
+**Last updated:** Step 11 — effect icons on tiles (unique pair colors + shared effect icons).
 
 ---
 
@@ -22,6 +22,7 @@ Godot project lives in `memory-game/`.
 | 8 | Win / lose + battle end | **Done** |
 | 9 | Richer HUD | **Done** |
 | 10 | Extract HUD to own scene | **Done** |
+| 11 | Tile effect icons | **Done** |
 
 ---
 
@@ -37,6 +38,7 @@ Godot project lives in `memory-game/`.
 | Match | Same `pair_id` → `make_empty()` + emit |
 | Mismatch | Grey face, 2.5s cover fade → `conceal()`; **−0.5s to enemy attack timer**; **no input freeze** |
 | Tile states | `HIDDEN`, `REVEALED`, `GREYED`, `EMPTY` |
+| Tile visuals | Unique `PAIR_COLORS` background per pair; shared effect icon (Attack/Heal/Slow/Speed/Upgrade) from `assets/icons/` |
 | Pair ids | 0–2 Attack, 3–4 Heal, 5 Slow, 6 Speed, 7 Upgrade |
 | Combat | HP, enemy timer, heal/damage, slow stacks, attack bonus |
 | HUD | HP labels + bars, enemy attack bar, buff row, last effect, end overlay + restart hint |
@@ -157,6 +159,22 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) — **HUD extraction** for full API and p
 | 3 | Slim `main.gd` to wiring only | Done |
 
 **Key files:** `scenes/ui/HUD.tscn`, `scripts/ui/hud.gd`, `scenes/main/main.tscn`, `scripts/main/main.gd`.
+
+---
+
+### Step 11 — Tile effect icons ✅
+
+Revealed tiles show a **white effect icon** on a **unique pair background color**.
+
+| Rule | Detail |
+|------|--------|
+| Same effect → same icon | All Attack pairs share `attack.svg`; both Heals share `heal.svg`; etc. |
+| Unique background | `PAIR_COLORS[pair_id]` still distinguishes pairs for memory |
+| Art source | [game-icons.net](https://game-icons.net/) (CC BY 3.0) — see `assets/icons/ATTRIBUTION.md` |
+
+**Tile scene order:** `Face` → `Icon` (`TextureRect`, Expand Ignore Size) → `Cover` → `SelectionOutline`.
+
+**Key files:** `Tile.tscn`, `tile.gd`, `assets/icons/*.svg`.
 
 ---
 

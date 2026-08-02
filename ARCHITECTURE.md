@@ -65,7 +65,7 @@ Main (Node2D)                        ← project entry; wires systems (MVP orche
 | `scenes/main/main.tscn` | `Node2D` | Entry + system wiring |
 | `scenes/ui/HUD.tscn` | `CanvasLayer` | In-fight stats + end overlay |
 | `scenes/board/Board.tscn` | `Node2D` | Grid layout and tile container |
-| `scenes/board/Tile.tscn` | `Node2D` | Single cell (face + cover) |
+| `scenes/board/Tile.tscn` | `Node2D` | Single cell: Face + Icon + Cover + outline |
 | `scenes/selector/selector.tscn` | `Node2D` | Cursor highlight on grid |
 | `scenes/battle/Battle.tscn` | `Node` | Optional later — battle orchestration |
 
@@ -75,7 +75,7 @@ Main (Node2D)                        ← project entry; wires systems (MVP orche
 |------|------|----------------|
 | **Main** | Signal wiring, battle-end flags on Board/Combat, restart input (`R`) | HUD layout, label text, bar math |
 | **Board** | Grid size, tile positions, spawn/clear tiles, pick-two logic, match/mismatch, **input gate when battle ended** | Player HP, enemy timer |
-| **Tile** | Visual state (hidden/revealed/greyed/empty), fade tween, `pair_id` | Whether two tiles match globally |
+| **Tile** | Visual state (hidden/revealed/greyed/empty), fade tween, `pair_id`, effect icon | Whether two tiles match globally |
 | **Selector** | Grid coordinates, move cooldown, **speed stacks/timer** | Reading match rules |
 | **Combat** | Player/enemy HP, enemy attack timer, **slow stacks/timer**, **attack_bonus** | Which pair id means what |
 | **EffectResolver** | Map `pair_id` → method calls on Combat/Selector | Stack storage, HP math internals |
@@ -151,8 +151,8 @@ Each cell on the board.
 | State | Meaning | Space allowed? | Visible |
 |-------|---------|----------------|---------|
 | `HIDDEN` | Face-down, playable | Yes (reveal) | Back / cover |
-| `REVEALED` | Face-up, part of active selection | No (already picked) | Icon |
-| `GREYED` | Face-up after mismatch, fading to hidden | No | Greyed icon → cover fades in |
+| `REVEALED` | Face-up, part of active selection | No (already picked) | Colored face + effect icon |
+| `GREYED` | Face-up after mismatch, fading to hidden | No | Greyed face + icon → cover fades in |
 | `EMPTY` | Matched and removed | No | Empty / hole |
 
 **Transitions:**
@@ -167,6 +167,7 @@ GREYED ──[fade complete, 2.5s]──► HIDDEN
 **Notes:**
 - Cap **2 active greyed pairs** (4 tiles in `GREYED`) — if a third mismatch occurs, define policy at implementation (recommended: still grey both; oldest pair continues fading).
 - Greyed tiles are not valid selection targets.
+- **Visual rule:** unique background color per `pair_id`; shared SVG icon per effect type (`assets/icons/`). Icon `TextureRect` uses Expand Mode = Ignore Size so it fits the tile.
 
 ---
 
@@ -314,6 +315,7 @@ Status tracked in [WORK_PLAN.md](WORK_PLAN.md). Each step should be playable bef
 | 8 | Win / lose + battle end + restart | Done |
 | 9 | Richer HUD (bars, buffs, attack timer, last effect) | Done |
 | 10 | Extract HUD to `HUD.tscn` + `hud.gd` | Done |
+| 11 | Tile effect icons (shared icon + unique color) | Done |
 
 ---
 
@@ -326,11 +328,13 @@ Memory-Game/
 ├── WORK_PLAN.md
 └── memory-game/                 ← Godot project root
     ├── project.godot
+    ├── assets/
+    │   └── icons/               ← effect SVGs + ATTRIBUTION.md
     ├── scenes/
     │   ├── main/
     │   ├── board/
     │   ├── selector/
-    │   └── ui/                  ← HUD.tscn (new)
+    │   └── ui/
     └── scripts/
         ├── main/
         ├── board/
@@ -338,7 +342,7 @@ Memory-Game/
         ├── selector/
         ├── combat/
         ├── effects/
-        └── ui/                  ← hud.gd (phase 2)
+        └── ui/
 ```
 
 ---

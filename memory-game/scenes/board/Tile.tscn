@@ -10,6 +10,17 @@ offset_right = 64.0
 offset_bottom = 64.0
 color = Color(0.22745098, 0.22745098, 0.22745098, 1)
 
+[node name="Icon" type="TextureRect" parent="." unique_id=1815349202]
+visible = false
+clip_contents = true
+anchors_preset = -1
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 56.0
+offset_bottom = 56.0
+expand_mode = 1
+stretch_mode = 5
+
 [node name="Cover" type="ColorRect" parent="." unique_id=551356375]
 modulate = Color(1, 1, 1, 0)
 offset_right = 64.0

@@ -18,11 +18,22 @@ const PAIR_COLORS := [
 
 @onready var _face: ColorRect = $Face
 @onready var _cover: ColorRect = $Cover
+@onready var _icon: TextureRect = $Icon
 @onready var _selection_outline: Line2D = $SelectionOutline
 
 var pair_id: int = -1
 var _state := State.HIDDEN
 
+const EFFECT_ICONS := {
+	0: preload("res://assets/icons/attack.svg"),
+	1: preload("res://assets/icons/attack.svg"),
+	2: preload("res://assets/icons/attack.svg"),
+	3: preload("res://assets/icons/heal.svg"),
+	4: preload("res://assets/icons/heal.svg"),
+	5: preload("res://assets/icons/slow.svg"),
+	6: preload("res://assets/icons/speed.svg"),
+	7: preload("res://assets/icons/upgrade.svg"),
+}
 
 func setup(id: int) -> void:
 	pair_id = id
@@ -36,6 +47,8 @@ func reveal() -> void:
 	_face.visible = true
 	_face.modulate = Color.WHITE
 	_face.color = PAIR_COLORS[pair_id % PAIR_COLORS.size()]
+	_icon.texture = EFFECT_ICONS[pair_id % EFFECT_ICONS.size()]
+	_icon.visible = true
 	_cover.modulate.a = 0.0
 
 
@@ -51,6 +64,7 @@ func make_empty() -> void:
 	_face.visible = false
 	_cover.modulate.a = 0.0
 	_selection_outline.visible = false
+	_icon.visible = false
 
 
 func grey_and_fade() -> void:
@@ -79,3 +93,4 @@ func _reset_visuals() -> void:
 	_face.color = HIDDEN_COLOR
 	_cover.modulate.a = 0.0
 	_selection_outline.visible = false
+	_icon.visible = false
