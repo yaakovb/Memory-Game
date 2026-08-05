@@ -69,7 +69,9 @@ color_id: int    # 0..3 affiliation
 **True pair:** `a.effect_id == b.effect_id and a.color_id == b.color_id`  
 Duplicates on the board: several tiles may share the same pair signature; any two that match the test form a pair.
 
-Optional internal `instance_id` is fine for debugging; **do not** use it as the player match key.
+Optional internal `instance_id` / unused `pair_id` is fine for debugging; **do not** use it as the player match key.
+
+**Deal:** `Board.STARTING_PAIRS` is the locked 18-pair composition (`Vector2i(effect_id, color_id)`). Deal duplicates each entry, shuffles, spawns. Composition table lives in [GAME_DESIGN.md](GAME_DESIGN.md).
 
 ---
 

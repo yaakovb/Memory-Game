@@ -63,7 +63,21 @@ Empty holes remain after matches; the selector may move through them.
 
 **Match test (true pair):** same icon **and** same color.
 
-Pair composition (how many Attack/Heal/… and how colors are distributed) is **tunable config** — lock a first table during implementation Step for board deal; expect reshuffles while playtesting.
+Pair composition is **tunable config** in `Board.STARTING_PAIRS`. First locked table (MVP 2 Step 3):
+
+### Starting pair composition (18 pairs)
+
+| Effect | Count | Colors |
+|--------|------:|--------|
+| Attack | 10 | Blue ×3, Purple ×3, Yellow ×2, Orange ×2 |
+| Heal | 3 | Blue, Purple, Orange |
+| Slow | 2 | Blue, Yellow |
+| Speed (haste) | 2 | Blue, Purple |
+| Upgrade | 1 | Orange |
+
+**Color totals:** Blue 6 · Purple 5 · Orange 4 · Yellow 3.
+
+Duplicates allowed (e.g. three identical Blue Attack pairs). Later MVP may key stronger effects to rarer colors (Yellow scarcest today). Expect reshuffles while playtesting.
 
 ---
 
@@ -198,7 +212,9 @@ Add one non-damage action only after 2-enemy damage fights feel stable.
 | Parameter | Placeholder | Notes |
 |-----------|-------------|-------|
 | Grid | 6×6 / 18 pairs | |
-| Colors | 4 | |
+| Colors | 4 | Blue / Yellow / Purple / Orange |
+| Color density | 6 / 3 / 5 / 4 | Blue / Yellow / Purple / Orange |
+| Starting composition | See table above | `Board.STARTING_PAIRS` |
 | Base move cooldown | 0.25 s | |
 | Miss / icon-only fade | ~2.5 s | Like MVP 1 mismatch |
 | Color-match fade | ~4.0 s | Longer on purpose — tune |

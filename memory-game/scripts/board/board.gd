@@ -6,6 +6,30 @@ const CELL_SIZE := 64
 const TILE_GAP := 6
 const BOARD_MARGIN := 3
 
+## One entry per pair: Vector2i(effect_id, color_id).
+## effect: 0 Attack, 1 Heal, 2 Slow, 3 Speed, 4 Upgrade
+## color:  0 Blue, 1 Yellow, 2 Purple, 3 Orange
+## Totals: 6 Blue, 5 Purple, 4 Orange, 3 Yellow — duplicates allowed.
+const STARTING_PAIRS: Array[Vector2i] = [
+	# Attack ×10
+	Vector2i(0, 0), Vector2i(0, 0), Vector2i(0, 0), # Blue ×3
+	Vector2i(0, 2), Vector2i(0, 2), Vector2i(0, 2), # Purple ×3
+	Vector2i(0, 1), Vector2i(0, 1), # Yellow ×2
+	Vector2i(0, 3), Vector2i(0, 3), # Orange ×2
+	# Heal ×3
+	Vector2i(1, 0), # Blue
+	Vector2i(1, 2), # Purple
+	Vector2i(1, 3), # Orange
+	# Slow ×2
+	Vector2i(2, 0), # Blue
+	Vector2i(2, 1), # Yellow
+	# Speed ×2
+	Vector2i(3, 0), # Blue
+	Vector2i(3, 2), # Purple
+	# Upgrade ×1
+	Vector2i(4, 3), # Orange
+]
+
 @export var tile_scene: PackedScene = preload("res://scenes/board/Tile.tscn")
 
 enum SelectionState { IDLE, ONE_SELECTED, RESOLVING }
@@ -46,17 +70,17 @@ func _ready() -> void:
 
 
 func _spawn_grid() -> void:
-	var pair_ids := _generate_shuffled_pair_ids()
+	var signatures := _generate_shuffled_pair_signatures()
 	var index := 0
-	_pairs_remaining = pair_ids.size() / 2
+	_pairs_remaining = signatures.size() / 2
 
 	for y in GRID_SIZE:
 		for x in GRID_SIZE:
 			var tile: Tile = tile_scene.instantiate()
 			tile.position = grid_to_world(Vector2i(x, y))
 			add_child(tile)
-			var id = pair_ids[index]
-			tile.setup(id, id%4 , id%5)
+			var sig: Vector2i = signatures[index]
+			tile.setup(-1, sig.y, sig.x)
 			index += 1
 			_tiles[Vector2i(x, y)] = tile
 
@@ -81,14 +105,14 @@ func _deal_new_board() -> void:
 	_update_selector_outline()
 
 
-func _generate_shuffled_pair_ids() -> Array:
-	var ids: Array = []
-	var pair_count := (GRID_SIZE * GRID_SIZE) / 2
-	for i in pair_count:
-		ids.append(i)
-		ids.append(i)
-	ids.shuffle()
-	return ids
+func _generate_shuffled_pair_signatures() -> Array[Vector2i]:
+	assert(STARTING_PAIRS.size() == (GRID_SIZE * GRID_SIZE) / 2)
+	var entries: Array[Vector2i] = []
+	for sig in STARTING_PAIRS:
+		entries.append(sig)
+		entries.append(sig)
+	entries.shuffle()
+	return entries
 
 
 func grid_to_world(grid_pos: Vector2i) -> Vector2:
@@ -156,7 +180,11 @@ func _resolve_pair() -> void:
 	first.set_selected_outline(false)
 	_update_selector_outline()
 
-	if first.pair_id == second.pair_id:
+	var is_true_pair := (
+		first.pair_effect_id == second.pair_effect_id
+		and first.pair_color_id == second.pair_color_id
+	)
+	if is_true_pair:
 		first.play_match_pop()
 		second.play_match_pop()
 		pair_matched.emit(first.pair_effect_id)

@@ -16,15 +16,16 @@ Context for the next Cursor agent (or human). Mentor mode: teach and guide; do n
 
 ## Current code reality
 
-MVP 2 **Steps 1–2 done** in scripts:
+MVP 2 **Steps 1–3 done** in scripts:
 
 - 6×6 grid; HUD offset clear of board
-- Tile stores `pair_id`, `pair_color_id`, `pair_effect_id` (5 icons, 4 affiliation colors on reveal)
-- Board still deals unique `pair_id` 0..17 with temporary `color = id % 4`, `effect = id % 5`
-- Match still by `pair_id`; EffectResolver takes effect id `0..4`
+- Tile stores `pair_id` (unused for match), `pair_color_id`, `pair_effect_id`
+- Board deals from `STARTING_PAIRS` (18 signatures, duplicates allowed); match = same effect + same color
+- EffectResolver maps effect id `0..4`
+- Non-true-pair reveals still all go through one mismatch path (grey + hurry) — four-way resolve not built yet
 - Single `Combat` enemy (unchanged)
 
-**Next:** Step 3 — deal 18 pairs with duplicate `(effect, color)` signatures allowed.
+**Next:** Step 4 — classify true pair / color match / icon-only / full miss.
 
 GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 
@@ -38,13 +39,14 @@ GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 4. **Bonus attack** autofires when mana full; key-spend later.  
 5. **No targeting yet** — default target policy.  
 6. **Duplicates allowed** on `(icon, color)`.  
-7. Map = toy-land **playmat** (always visible, no line-graph) + explicit forget; simple shop/fight economy — after fight loop is good. Deeper map-memory rules later.
+7. Map = toy-land **playmat** (always visible, no line-graph) + explicit forget; simple shop/fight economy — after fight loop is good. Deeper map-memory rules later.  
+8. **Starting composition** locked in GDD / `Board.STARTING_PAIRS` (color totals 6 Blue / 5 Purple / 4 Orange / 3 Yellow). Later MVP may key better effects to rarer colors.
 
 ---
 
 ## Suggested next implementation slice
 
-Work Plan **Step 3**: replace unique-`pair_id` deal with explicit `(effect_id, color_id)` pair list (duplicates OK). Matching can stay on `pair_id` *or* move to signature equality — prefer signature so Step 4’s true-pair check is natural. Keep mentor pace.
+Work Plan **Step 4**: split `_resolve_pair` into four outcomes; emit distinct signals (see ARCHITECTURE). Color-match mana can stub as a signal only until Step 6. Keep mentor pace.
 
 ---
 
@@ -53,7 +55,7 @@ Work Plan **Step 3**: replace unique-`pair_id` deal with explicit `(effect_id, c
 | Path | Role |
 |------|------|
 | `scripts/main/main.gd` | Wiring |
-| `scripts/board/board.gd` | Grid + selection + match + deal |
+| `scripts/board/board.gd` | Grid + selection + match + `STARTING_PAIRS` deal |
 | `scripts/tile/tile.gd` | Visual states, color + effect |
 | `scripts/combat/combat.gd` | Single-enemy HP/timer |
 | `scripts/effects/effect_resolver.gd` | effect_id `0..4` → effect |
