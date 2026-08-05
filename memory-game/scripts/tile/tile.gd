@@ -7,26 +7,19 @@ const HIDDEN_COLOR := Color(0.23, 0.23, 0.23)
 const MISMATCH_FADE_DURATION := 2.5
 const TILE_SIZE := 64.0
 const MATCH_POP_DURATION := 0.18
-const PAIR_COLORS := [
-	Color(0.9, 0.3, 0.3),   # pair 0 — Attack
-	Color(0.3, 0.8, 0.4),   # pair 1 — Attack
-	Color(0.3, 0.6, 0.95),  # pair 2 — Attack
-	Color(0.95, 0.85, 0.2), # pair 3 — Heal
-	Color(0.8, 0.4, 0.9),   # pair 4 — Heal
-	Color(0.95, 0.5, 0.2),  # pair 5 — Slow
-	Color(0.2, 0.85, 0.85), # pair 6 — Speed
-	Color(0.95, 0.4, 0.7),  # pair 7 — Upgrade
+const AFFILIATION_COLORS := [
+	Color.BLUE,
+	Color.YELLOW,
+	Color.PURPLE,
+	Color.ORANGE
 ]
 
 const EFFECT_ICONS := {
 	0: preload("res://assets/icons/attack.svg"),
-	1: preload("res://assets/icons/attack.svg"),
-	2: preload("res://assets/icons/attack.svg"),
-	3: preload("res://assets/icons/heal.svg"),
-	4: preload("res://assets/icons/heal.svg"),
-	5: preload("res://assets/icons/slow.svg"),
-	6: preload("res://assets/icons/speed.svg"),
-	7: preload("res://assets/icons/upgrade.svg"),
+	1: preload("res://assets/icons/heal.svg"),
+	2: preload("res://assets/icons/slow.svg"),
+	3: preload("res://assets/icons/speed.svg"),
+	4: preload("res://assets/icons/upgrade.svg"),
 }
 
 @onready var _face: ColorRect = $Face
@@ -35,14 +28,18 @@ const EFFECT_ICONS := {
 @onready var _selection_outline: Line2D = $SelectionOutline
 
 var pair_id: int = -1
+var pair_color_id: int = -1
+var pair_effect_id: int = -1
 var _state := State.HIDDEN
 var _juice_tween: Tween
 ## Grid position from Board — juice tweens temporarily move `position`, then restore this.
 var _grid_position := Vector2.ZERO
 
 
-func setup(id: int) -> void:
+func setup(id: int, color_id: int, effect_id: int) -> void:
 	pair_id = id
+	pair_color_id = color_id
+	pair_effect_id = effect_id
 	_grid_position = position
 	_reset_visuals()
 
@@ -53,8 +50,8 @@ func reveal() -> void:
 	_state = State.REVEALED
 	_face.visible = true
 	_face.modulate = Color.WHITE
-	_face.color = PAIR_COLORS[pair_id % PAIR_COLORS.size()]
-	_icon.texture = EFFECT_ICONS[pair_id]
+	_face.color = AFFILIATION_COLORS[pair_color_id % AFFILIATION_COLORS.size()]
+	_icon.texture = EFFECT_ICONS[pair_effect_id % EFFECT_ICONS.size()]
 	_icon.visible = true
 	_cover.modulate.a = 0.0
 

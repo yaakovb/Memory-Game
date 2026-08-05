@@ -17,19 +17,19 @@ func setup(combat: Combat, selector: Selector) -> void:
 
 func apply(pair_id: int) -> void:
 	match pair_id:
-		0, 1, 2:
+		0:
 			var damage := _combat.get_player_attack_damage()
 			_combat.damage_enemy(damage)
 			effect_applied.emit("Attack %d" % damage)
-		3, 4:
+		1:
 			_combat.heal_player(HEAL_AMOUNT)
 			effect_applied.emit("Heal +%d" % HEAL_AMOUNT)
-		5:
+		2:
 			_combat.apply_slow()
 			effect_applied.emit("Slow")
-		6:
+		3:
 			_selector.apply_speed()
 			effect_applied.emit("Speed")
-		7:
+		4:
 			_combat.add_attack_bonus(ATTACK_BONUS)
 			effect_applied.emit("Upgrade +%d" % ATTACK_BONUS)

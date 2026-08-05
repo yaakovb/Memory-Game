@@ -1,7 +1,7 @@
 class_name Board
 extends Node2D
 
-const GRID_SIZE := 4
+const GRID_SIZE := 6
 const CELL_SIZE := 64
 const TILE_GAP := 6
 const BOARD_MARGIN := 3
@@ -55,7 +55,8 @@ func _spawn_grid() -> void:
 			var tile: Tile = tile_scene.instantiate()
 			tile.position = grid_to_world(Vector2i(x, y))
 			add_child(tile)
-			tile.setup(pair_ids[index])
+			var id = pair_ids[index]
+			tile.setup(id, id%4 , id%5)
 			index += 1
 			_tiles[Vector2i(x, y)] = tile
 
@@ -158,7 +159,7 @@ func _resolve_pair() -> void:
 	if first.pair_id == second.pair_id:
 		first.play_match_pop()
 		second.play_match_pop()
-		pair_matched.emit(first.pair_id)
+		pair_matched.emit(first.pair_effect_id)
 		_pairs_remaining -= 1
 		if _pairs_remaining <= 0:
 			# Let the pop finish before freeing tiles for a new board.
