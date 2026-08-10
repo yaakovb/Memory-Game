@@ -17,7 +17,9 @@ func _ready() -> void:
 	_effect_resolver.setup(_combat, _selector)
 	_effect_resolver.effect_applied.connect(_on_effect_applied)
 	_board.pair_matched.connect(_effect_resolver.apply)
-	_board.pair_mismatched.connect(_combat.hurry_next_attack)
+	_board.color_matched.connect(_on_color_matched)
+	# disconnect hurry from pair_mismatched (or leave mismatch unwired)
+	# _board.pair_mismatched.connect(_combat.hurry_next_attack)
 	_combat.player_defeated.connect(_on_player_defeated)
 	_combat.enemy_defeated.connect(_on_enemy_defeated)
 	_on_hp_changed(_combat.player_hp, _combat.enemy_hp)
@@ -59,3 +61,7 @@ func _input(event: InputEvent) -> void:
 
 func _on_effect_applied(description: String) -> void:
 	_hud.set_last_effect(description)
+
+func _on_color_matched(color_id: int) -> void:
+	_combat.hurry_next_attack()
+	_hud.set_last_effect("Color match (mana stub)")  # temporary feedback

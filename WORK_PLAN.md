@@ -5,7 +5,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 **Godot project:** `memory-game/`  
 **MVP 1 archive:** [archive/MVP_1/](archive/MVP_1/) (Steps 1–12 complete — single enemy, 4×4 unique pairs).
 
-**Last updated:** Steps 1–3 done. Starting composition locked; next is four-way resolve (Step 4).
+**Last updated:** Steps 1–4 done. Next: longer color-match fade (Step 5).
 
 ---
 
@@ -17,8 +17,8 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 | 1    | 6×6 grid + selector clamp                                | **Done**                         |
 | 2    | Tile `effect_id` + `color_id` visuals (4 colors)         | **Done**                         |
 | 3    | Deal 18 pairs with **duplicate** signatures allowed      | **Done**                         |
-| 4    | Resolve: true pair / color match / icon-only / full miss | Pending                          |
-| 5    | Color-match longer fade + enemy hurry                    | Pending                          |
+| 4    | Resolve: true pair / color match / icon-only / full miss | **Done**                         |
+| 5    | Color-match longer fade + enemy hurry                    | **In progress**                  |
 | 6    | Mana bar + autofire bonus attack (default target)        | Pending                          |
 | 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | Pending                          |
 | 8    | Money on kill (HUD stub)                                 | Pending                          |
@@ -73,7 +73,7 @@ Replace “unique pair_id match” mental model with signature match.
 
 ---
 
-### Step 4 — Four-way resolve
+### Step 4 — Four-way resolve ✅
 
 | Outcome     | Gameplay                    |
 | ----------- | --------------------------- |
@@ -81,6 +81,8 @@ Replace “unique pair_id match” mental model with signature match.
 | Color match | Mana fill signal; long grey |
 | Icon-only   | No reward; short grey       |
 | Full miss   | No reward; short grey       |
+
+**Done:** Board classifies by effect/color; true pair pops; all non-pairs grey+fade. `color_matched` → hurry + HUD mana stub. Icon-only / full miss use `_resolve_mismatch` (no hurry). Fade durations still equal — longer color-match fade is Step 5.
 
 **Key files:** `board.gd`, wiring in `main.gd`.
 

@@ -16,16 +16,15 @@ Context for the next Cursor agent (or human). Mentor mode: teach and guide; do n
 
 ## Current code reality
 
-MVP 2 **Steps 1–3 done** in scripts:
+MVP 2 **Steps 1–4 done** in scripts:
 
-- 6×6 grid; HUD offset clear of board
-- Tile stores `pair_id` (unused for match), `pair_color_id`, `pair_effect_id`
-- Board deals from `STARTING_PAIRS` (18 signatures, duplicates allowed); match = same effect + same color
-- EffectResolver maps effect id `0..4`
-- Non-true-pair reveals still all go through one mismatch path (grey + hurry) — four-way resolve not built yet
-- Single `Combat` enemy (unchanged)
+- 6×6; `STARTING_PAIRS` deal; match on effect+color
+- Four-way classify in `Board._resolve_pair`: true pair pops; color match emits `color_matched` + grey; icon-only / full miss grey via `_resolve_mismatch`
+- Main: `color_matched` → hurry + HUD “mana stub”; `pair_mismatched` not wired to hurry
+- Fade duration still the same for all non-pairs (`Tile.MISMATCH_FADE_DURATION`)
+- Single `Combat` enemy; no real mana bar yet
 
-**Next:** Step 4 — classify true pair / color match / icon-only / full miss.
+**Next:** Step 5 — longer grey/fade on color match only (hurry already on color match).
 
 GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 
@@ -46,7 +45,7 @@ GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 
 ## Suggested next implementation slice
 
-Work Plan **Step 4**: split `_resolve_pair` into four outcomes; emit distinct signals (see ARCHITECTURE). Color-match mana can stub as a signal only until Step 6. Keep mentor pace.
+Work Plan **Step 5**: `Tile.grey_and_fade(duration)` (or two helpers); Board passes long duration on color match, short on icon-only/full miss. GDD placeholders: ~2.5 s miss, ~4.0 s color match. Keep mentor pace.
 
 ---
 
@@ -55,8 +54,8 @@ Work Plan **Step 4**: split `_resolve_pair` into four outcomes; emit distinct si
 | Path | Role |
 |------|------|
 | `scripts/main/main.gd` | Wiring |
-| `scripts/board/board.gd` | Grid + selection + match + `STARTING_PAIRS` deal |
-| `scripts/tile/tile.gd` | Visual states, color + effect |
+| `scripts/board/board.gd` | Grid + selection + four-way resolve + deal |
+| `scripts/tile/tile.gd` | Visual states, fade durations |
 | `scripts/combat/combat.gd` | Single-enemy HP/timer |
 | `scripts/effects/effect_resolver.gd` | effect_id `0..4` → effect |
 | `scripts/ui/hud.gd` | Display |

@@ -34,8 +34,10 @@ const STARTING_PAIRS: Array[Vector2i] = [
 
 enum SelectionState { IDLE, ONE_SELECTED, RESOLVING }
 
-signal pair_matched(pair_id: int)
-signal pair_mismatched
+signal pair_matched(effect_id: int)       # keep
+signal color_matched(color_id: int)       # new — mana stub + hurry
+signal icon_only_matched                  # new — optional; or fold into mismatch
+signal pair_mismatched                    # full miss only
 signal board_cleared
 signal board_dealt
 
@@ -180,11 +182,10 @@ func _resolve_pair() -> void:
 	first.set_selected_outline(false)
 	_update_selector_outline()
 
-	var is_true_pair := (
-		first.pair_effect_id == second.pair_effect_id
-		and first.pair_color_id == second.pair_color_id
-	)
-	if is_true_pair:
+	var same_effect := first.pair_effect_id == second.pair_effect_id
+	var same_color := first.pair_color_id == second.pair_color_id
+
+	if same_effect and same_color:
 		first.play_match_pop()
 		second.play_match_pop()
 		pair_matched.emit(first.pair_effect_id)
@@ -194,6 +195,12 @@ func _resolve_pair() -> void:
 			await get_tree().create_timer(Tile.MATCH_POP_DURATION).timeout
 			board_cleared.emit()
 			_deal_new_board()
+	elif same_effect:
+		_resolve_mismatch(first, second)
+	elif same_color:
+		color_matched.emit(first.pair_color_id)
+		first.grey_and_fade()
+		second.grey_and_fade()
 	else:
 		_resolve_mismatch(first, second)
 
