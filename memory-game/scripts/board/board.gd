@@ -199,16 +199,16 @@ func _resolve_pair() -> void:
 		_resolve_mismatch(first, second)
 	elif same_color:
 		color_matched.emit(first.pair_color_id)
-		first.grey_and_fade()
-		second.grey_and_fade()
+		first.grey_and_fade(Tile.COLOR_MATCH_FADE_DURATION)
+		second.grey_and_fade(Tile.COLOR_MATCH_FADE_DURATION)
 	else:
 		_resolve_mismatch(first, second)
 
 
 func _resolve_mismatch(first: Tile, second: Tile) -> void:
 	pair_mismatched.emit()
-	first.grey_and_fade()
-	second.grey_and_fade()
+	first.grey_and_fade(Tile.MISMATCH_FADE_DURATION)
+	second.grey_and_fade(Tile.MISMATCH_FADE_DURATION)
 
 
 func _update_selector_outline() -> void:

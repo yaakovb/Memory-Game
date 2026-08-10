@@ -4,7 +4,9 @@ extends Node2D
 enum State { HIDDEN, REVEALED, GREYED, EMPTY }
 
 const HIDDEN_COLOR := Color(0.23, 0.23, 0.23)
-const MISMATCH_FADE_DURATION := 2.5
+const REVEAL_HOLD_DURATION := 0.35  # tune: time to actually see the second tile
+const MISMATCH_FADE_DURATION := 1.65
+const COLOR_MATCH_FADE_DURATION := 3.15
 const TILE_SIZE := 64.0
 const MATCH_POP_DURATION := 0.18
 const AFFILIATION_COLORS := [
@@ -87,17 +89,20 @@ func play_match_pop() -> void:
 	_juice_tween.chain().tween_callback(_finish_match_pop)
 
 
-func grey_and_fade() -> void:
+func grey_and_fade(duration: float = MISMATCH_FADE_DURATION) -> void:
 	if _state != State.REVEALED:
 		return
 	_kill_juice_tween()
 	_restore_transform()
 	_state = State.GREYED
-	_face.modulate = Color(0.55, 0.55, 0.55, 1.0)
+	# Do NOT grey the face yet — hold first
 	_cover.modulate.a = 0.0
-
 	var tween := create_tween()
-	tween.tween_property(_cover, "modulate:a", 1.0, MISMATCH_FADE_DURATION)
+	tween.tween_interval(REVEAL_HOLD_DURATION)
+	tween.tween_callback(func() -> void:
+		_face.modulate = Color(0.55, 0.55, 0.55, 1.0)
+	)
+	tween.tween_property(_cover, "modulate:a", 1.0, duration)
 	tween.tween_callback(conceal)
 
 

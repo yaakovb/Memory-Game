@@ -95,9 +95,10 @@ Player reveals two tiles. Resolve in this order of checks:
 ### Tile behavior after non-pairs (2–4)
 
 - Tiles go **greyed**, cover fades in, then return to **hidden** (same idea as MVP 1 mismatch).
+- Before greying, tiles **hold** fully revealed briefly so the second tile’s color/icon is readable (`REVEAL_HOLD_DURATION`).
 - Player can keep moving and revealing other tiles (no global input freeze).
 - **Color match** uses a **longer** grey/fade duration than icon-only / full miss, so farming mana is costly in time and board lockout.
-- Exact durations: tune in play (placeholders in Values table).
+- Exact durations: see Values table (total lockout = hold + fade).
 
 ### Enemy hurry
 
@@ -216,11 +217,13 @@ Add one non-damage action only after 2-enemy damage fights feel stable.
 | Color density | 6 / 3 / 5 / 4 | Blue / Yellow / Purple / Orange |
 | Starting composition | See table above | `Board.STARTING_PAIRS` |
 | Base move cooldown | 0.25 s | |
-| Miss / icon-only fade | ~2.5 s | Like MVP 1 mismatch |
-| Color-match fade | ~4.0 s | Longer on purpose — tune |
+| Reveal hold (before grey) | 0.35 s | Both tiles stay fully colored |
+| Miss / icon-only lockout | **2.0 s** | hold 0.35 + fade 1.65 |
+| Color-match lockout | **3.5 s** | hold 0.35 + fade 3.15 |
 | Color-match hurry | −0.5 s / enemy | Tune |
-| Mana per color match | TBD | e.g. 20–35% of bar |
-| Bonus attack damage | TBD | |
+| Mana per color match | 25% of bar | 4 color matches → full (tune) |
+| Mana max | 100 | Unitless progress |
+| Bonus attack damage | = player attack damage | Same as Attack pair for now |
 | Player max HP | TBD | Scale vs multi-enemy |
 | Enemy definitions | Data-driven | Tank / assassin examples |
 

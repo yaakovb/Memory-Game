@@ -5,7 +5,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 **Godot project:** `memory-game/`  
 **MVP 1 archive:** [archive/MVP_1/](archive/MVP_1/) (Steps 1–12 complete — single enemy, 4×4 unique pairs).
 
-**Last updated:** Steps 1–4 done. Next: longer color-match fade (Step 5).
+**Last updated:** Steps 1–5 done. Next: mana bar + autofire bonus attack (Step 6).
 
 ---
 
@@ -18,8 +18,8 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 | 2    | Tile `effect_id` + `color_id` visuals (4 colors)         | **Done**                         |
 | 3    | Deal 18 pairs with **duplicate** signatures allowed      | **Done**                         |
 | 4    | Resolve: true pair / color match / icon-only / full miss | **Done**                         |
-| 5    | Color-match longer fade + enemy hurry                    | **In progress**                  |
-| 6    | Mana bar + autofire bonus attack (default target)        | Pending                          |
+| 5    | Color-match longer fade + enemy hurry                    | **Done**                         |
+| 6    | Mana bar + autofire bonus attack (default target)        | **In progress**                  |
 | 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | Pending                          |
 | 8    | Money on kill (HUD stub)                                 | Pending                          |
 | 9    | One non-damage enemy action (optional stretch)           | Pending                          |
@@ -88,9 +88,11 @@ Replace “unique pair_id match” mental model with signature match.
 
 ---
 
-### Step 5 — Color-match cost
+### Step 5 — Color-match cost ✅
 
 Longer fade duration than miss/icon-only; hurry living enemy timers on color match.
+
+**Done:** `REVEAL_HOLD_DURATION` (0.35 s) then grey+fade; miss/icon-only total lockout **2.0 s** (fade 1.65); color-match total **3.5 s** (fade 3.15). Hurry already on `color_matched` from Step 4.
 
 **Key files:** `tile.gd`, combat/enemy timers.
 

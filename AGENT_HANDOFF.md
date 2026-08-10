@@ -16,15 +16,14 @@ Context for the next Cursor agent (or human). Mentor mode: teach and guide; do n
 
 ## Current code reality
 
-MVP 2 **Steps 1–4 done** in scripts:
+MVP 2 **Steps 1–5 done** in scripts:
 
-- 6×6; `STARTING_PAIRS` deal; match on effect+color
-- Four-way classify in `Board._resolve_pair`: true pair pops; color match emits `color_matched` + grey; icon-only / full miss grey via `_resolve_mismatch`
-- Main: `color_matched` → hurry + HUD “mana stub”; `pair_mismatched` not wired to hurry
-- Fade duration still the same for all non-pairs (`Tile.MISMATCH_FADE_DURATION`)
-- Single `Combat` enemy; no real mana bar yet
+- 6×6; `STARTING_PAIRS`; four-way resolve; color match → hurry + HUD stub
+- Tile lockout: hold 0.35 s then fade — miss/icon-only **2.0 s** total, color-match **3.5 s** total
+- No real mana bar / bonus attack autofire yet
+- Single `Combat` enemy
 
-**Next:** Step 5 — longer grey/fade on color match only (hurry already on color match).
+**Next:** Step 6 — mana on `Combat`, HUD bar, autofire bonus attack at default (only) enemy when full.
 
 GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 
@@ -39,13 +38,14 @@ GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 5. **No targeting yet** — default target policy.  
 6. **Duplicates allowed** on `(icon, color)`.  
 7. Map = toy-land **playmat** (always visible, no line-graph) + explicit forget; simple shop/fight economy — after fight loop is good. Deeper map-memory rules later.  
-8. **Starting composition** locked in GDD / `Board.STARTING_PAIRS` (color totals 6 Blue / 5 Purple / 4 Orange / 3 Yellow). Later MVP may key better effects to rarer colors.
+8. **Starting composition** locked in GDD / `Board.STARTING_PAIRS` (color totals 6 Blue / 5 Purple / 4 Orange / 3 Yellow). Later MVP may key better effects to rarer colors.  
+9. **Non-pair lockout totals:** miss/icon-only 2.0 s; color-match 3.5 s (includes 0.35 s reveal hold).
 
 ---
 
 ## Suggested next implementation slice
 
-Work Plan **Step 5**: `Tile.grey_and_fade(duration)` (or two helpers); Board passes long duration on color match, short on icon-only/full miss. GDD placeholders: ~2.5 s miss, ~4.0 s color match. Keep mentor pace.
+Work Plan **Step 6**: add mana 0..max on `Combat`; `add_mana` from `color_matched`; ProgressBar on HUD; when full, autofire bonus damage at enemy and reset mana. Keep mentor pace — propose placeholder numbers (e.g. 25% per color match, bonus damage = player attack or fixed).
 
 ---
 
@@ -55,8 +55,8 @@ Work Plan **Step 5**: `Tile.grey_and_fade(duration)` (or two helpers); Board pas
 |------|------|
 | `scripts/main/main.gd` | Wiring |
 | `scripts/board/board.gd` | Grid + selection + four-way resolve + deal |
-| `scripts/tile/tile.gd` | Visual states, fade durations |
-| `scripts/combat/combat.gd` | Single-enemy HP/timer |
+| `scripts/tile/tile.gd` | Visual states, hold + fade durations |
+| `scripts/combat/combat.gd` | Single-enemy HP/timer (+ mana next) |
 | `scripts/effects/effect_resolver.gd` | effect_id `0..4` → effect |
 | `scripts/ui/hud.gd` | Display |
 
