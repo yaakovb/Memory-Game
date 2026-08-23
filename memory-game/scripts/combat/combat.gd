@@ -4,6 +4,8 @@ extends Node
 signal hp_changed(player_hp: int, enemy_hp: int)
 signal player_defeated
 signal enemy_defeated
+signal mana_changed(current: float, maximum: float)
+signal bonus_attack_fired(damage: int)
 
 @export var player_max_hp := 20
 @export var enemy_max_hp := 15
@@ -15,6 +17,8 @@ const SLOW_DURATION := 10.0
 const SLOW_PER_STACK := 0.25
 const BASE_ATTACK_DAMAGE := 3
 const MISMATCH_ATTACK_HURRY := 0.5
+const MANA_MAX := 100.0
+const MANA_PER_COLOR_MATCH := 25.0
 
 var player_hp: int
 var enemy_hp: int
@@ -26,6 +30,7 @@ var _timer := 0.0
 var _slow_stacks := 0
 var _slow_timer := 0.0
 
+var mana := 0.0
 
 func _ready() -> void:
 	player_hp = player_max_hp
@@ -107,3 +112,19 @@ func hurry_next_attack(amount: float = MISMATCH_ATTACK_HURRY) -> void:
 	if _battle_ended:
 		return
 	_timer = minf(_timer + amount, get_attack_interval())
+
+func add_mana(amount: float) -> void:
+	if _battle_ended:
+		return
+	mana = minf(mana + amount, MANA_MAX)
+	mana_changed.emit(mana, MANA_MAX)
+	if mana >= MANA_MAX:
+		mana = MANA_MAX
+		_fire_bonus_attack()
+
+func _fire_bonus_attack() -> void:
+	mana = 0.0
+	mana_changed.emit(mana, MANA_MAX)
+	var damage := get_player_attack_damage()
+	damage_enemy(damage)
+	bonus_attack_fired.emit(damage)

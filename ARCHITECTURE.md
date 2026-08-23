@@ -140,6 +140,8 @@ MVP 2 proposal: Slow applies to **all living enemies** (readable). Revisit with 
 
 HUD reads mana via director getters (same push/`_process` pattern as MVP 1 attack bar).
 
+**Current code (Step 6):** mana still lives on `Combat` until Step 7 extracts a director + enemy roster. Behavior matches this table.
+
 ---
 
 ## Signals (battle)

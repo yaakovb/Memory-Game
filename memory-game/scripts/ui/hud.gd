@@ -15,6 +15,8 @@ extends CanvasLayer
 @onready var _end_overlay: Control = $EndOverlay
 @onready var _end_label: Label = $EndOverlay/CenterContainer/VBoxContainer/EndLabel
 
+@onready var _mana_bar: ProgressBar = $VBoxContainer/ManaProgressBar
+
 var _combat: Combat
 var _selector: Selector
 
@@ -25,6 +27,7 @@ func setup(combat: Combat, selector: Selector) -> void:
 	_player_hp_bar.max_value = combat.player_max_hp
 	_enemy_hp_bar.max_value = combat.enemy_max_hp
 	_attack_progress.max_value = 100.0
+	_mana_bar.max_value = Combat.MANA_MAX
 
 
 func update_hp(player_hp: int, player_max: int, enemy_hp: int, enemy_max: int) -> void:
@@ -32,6 +35,9 @@ func update_hp(player_hp: int, player_max: int, enemy_hp: int, enemy_max: int) -
 	_enemy_hp_label.text = "Enemy: %d / %d" % [enemy_hp, enemy_max]
 	_player_hp_bar.value = player_hp
 	_enemy_hp_bar.value = enemy_hp
+
+func update_mana(mana: float, maximum: float) -> void:
+	_mana_bar.value = mana
 
 
 func set_last_effect(description: String) -> void:

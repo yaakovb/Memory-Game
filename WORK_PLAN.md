@@ -5,7 +5,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 **Godot project:** `memory-game/`  
 **MVP 1 archive:** [archive/MVP_1/](archive/MVP_1/) (Steps 1–12 complete — single enemy, 4×4 unique pairs).
 
-**Last updated:** Steps 1–5 done. Next: mana bar + autofire bonus attack (Step 6).
+**Last updated:** Steps 1–6 done. Next: two enemies / CombatDirector (Step 7).
 
 ---
 
@@ -19,8 +19,8 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 | 3    | Deal 18 pairs with **duplicate** signatures allowed      | **Done**                         |
 | 4    | Resolve: true pair / color match / icon-only / full miss | **Done**                         |
 | 5    | Color-match longer fade + enemy hurry                    | **Done**                         |
-| 6    | Mana bar + autofire bonus attack (default target)        | **In progress**                  |
-| 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | Pending                          |
+| 6    | Mana bar + autofire bonus attack (default target)        | **Done**                         |
+| 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | **In progress**                  |
 | 8    | Money on kill (HUD stub)                                 | Pending                          |
 | 9    | One non-damage enemy action (optional stretch)           | Pending                          |
 | 10   | Pair composition tuning pass                             | Pending                          |
@@ -98,9 +98,11 @@ Longer fade duration than miss/icon-only; hurry living enemy timers on color mat
 
 ---
 
-### Step 6 — Mana + bonus attack
+### Step 6 — Mana + bonus attack ✅
 
 CombatDirector (or evolved Combat) tracks mana; HUD bar; autofire damage at default target when full.
+
+**Done:** Mana on `Combat` (`MANA_MAX` 100, `MANA_PER_COLOR_MATCH` 25); HUD `ManaProgressBar`; color match fills mana + hurry; at full, autofire bonus damage (= player attack) at the single enemy and reset mana. Last-effect shows bonus when it fires (set color-match text before `add_mana`).
 
 **Key files:** combat scripts, `hud.gd`, `HUD.tscn`.
 

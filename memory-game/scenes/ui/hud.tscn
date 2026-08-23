@@ -47,6 +47,15 @@ layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_wh2we")
 show_percentage = false
 
+[node name="ManaLabel" type="Label" parent="VBoxContainer" unique_id=1748038155]
+layout_mode = 2
+text = "Mana"
+
+[node name="ManaProgressBar" type="ProgressBar" parent="VBoxContainer" unique_id=719432253]
+custom_minimum_size = Vector2(200, 16)
+layout_mode = 2
+show_percentage = false
+
 [node name="BuffRow" type="HBoxContainer" parent="VBoxContainer" unique_id=1776510806]
 layout_mode = 2
 theme_override_constants/separation = 20

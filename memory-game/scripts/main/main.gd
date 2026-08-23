@@ -23,6 +23,7 @@ func _ready() -> void:
 	_combat.player_defeated.connect(_on_player_defeated)
 	_combat.enemy_defeated.connect(_on_enemy_defeated)
 	_on_hp_changed(_combat.player_hp, _combat.enemy_hp)
+	_combat.bonus_attack_fired.connect(_on_bonus_attack_fired)
 
 
 func _on_hp_changed(player_hp: int, enemy_hp: int) -> void:
@@ -64,4 +65,9 @@ func _on_effect_applied(description: String) -> void:
 
 func _on_color_matched(color_id: int) -> void:
 	_combat.hurry_next_attack()
-	_hud.set_last_effect("Color match (mana stub)")  # temporary feedback
+	_hud.set_last_effect("Color match")
+	_combat.add_mana(Combat.MANA_PER_COLOR_MATCH)
+	_hud.update_mana(_combat.mana, Combat.MANA_MAX)
+
+func _on_bonus_attack_fired(damage: int) -> void:
+	_hud.set_last_effect("Bonus attack: %d damage" % damage)
