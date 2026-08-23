@@ -20,7 +20,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 | 4    | Resolve: true pair / color match / icon-only / full miss | **Done**                         |
 | 5    | Color-match longer fade + enemy hurry                    | **Done**                         |
 | 6    | Mana bar + autofire bonus attack (default target)        | **Done**                         |
-| 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | **In progress**                  |
+| 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | **In progress** (coding)         |
 | 8    | Money on kill (HUD stub)                                 | Pending                          |
 | 9    | One non-damage enemy action (optional stretch)           | Pending                          |
 | 10   | Pair composition tuning pass                             | Pending                          |

@@ -2,9 +2,6 @@
 
 [ext_resource type="Script" uid="uid://d282tnden6byg" path="res://scripts/ui/hud.gd" id="1_hud_script"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wh2we"]
-bg_color = Color(0.92941177, 0.6, 0.16078432, 1)
-
 [node name="HUD" type="CanvasLayer" unique_id=34967848]
 script = ExtResource("1_hud_script")
 
@@ -13,7 +10,7 @@ anchors_preset = -1
 offset_left = 460.0
 offset_top = 16.0
 offset_right = 680.0
-offset_bottom = 220.0
+offset_bottom = 400.0
 
 [node name="PlayerHPLabel" type="Label" parent="VBoxContainer" unique_id=1746371148]
 layout_mode = 2
@@ -26,26 +23,9 @@ max_value = 20.0
 value = 20.0
 show_percentage = false
 
-[node name="EnemyHPLabel" type="Label" parent="VBoxContainer" unique_id=889827793]
+[node name="EnemyList" type="VBoxContainer" parent="VBoxContainer" unique_id=2116066843]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-
-[node name="EnemyHPBar" type="ProgressBar" parent="VBoxContainer" unique_id=459952547]
-custom_minimum_size = Vector2(200, 24)
-layout_mode = 2
-max_value = 20.0
-value = 20.0
-show_percentage = false
-
-[node name="EnemyAttackLabel" type="Label" parent="VBoxContainer" unique_id=2050638652]
-layout_mode = 2
-text = "Next Attack"
-
-[node name="EnemyAttackBar" type="ProgressBar" parent="VBoxContainer" unique_id=618173194]
-custom_minimum_size = Vector2(200, 16)
-layout_mode = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_wh2we")
-show_percentage = false
+theme_override_constants/separation = 8
 
 [node name="ManaLabel" type="Label" parent="VBoxContainer" unique_id=1748038155]
 layout_mode = 2

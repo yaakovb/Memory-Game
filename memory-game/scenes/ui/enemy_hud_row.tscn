@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://c21ydhbtl16ea"]
+
+[ext_resource type="Script" path="res://scripts/ui/enemy_hud_row.gd" id="1_row"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_attack"]
+bg_color = Color(0.92941177, 0.6, 0.16078432, 1)
+
+[node name="EnemyHudRow" type="VBoxContainer"]
+script = ExtResource("1_row")
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Enemy"
+
+[node name="HPBar" type="ProgressBar" parent="."]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 2
+show_percentage = false
+
+[node name="AttackLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Next Attack"
+
+[node name="AttackBar" type="ProgressBar" parent="."]
+custom_minimum_size = Vector2(200, 14)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_attack")
+show_percentage = false
