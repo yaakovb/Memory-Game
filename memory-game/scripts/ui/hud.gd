@@ -1,11 +1,11 @@
 class_name HUD
 extends CanvasLayer
 
+@export var enemy_row_scene: PackedScene = preload("res://scenes/ui/enemy_hud_row.tscn")
+
 @onready var _player_hp_label: Label = $VBoxContainer/PlayerHPLabel
-@onready var _enemy_hp_label: Label = $VBoxContainer/EnemyHPLabel
 @onready var _player_hp_bar: ProgressBar = $VBoxContainer/PlayerHPBar
-@onready var _enemy_hp_bar: ProgressBar = $VBoxContainer/EnemyHPBar
-@onready var _attack_progress: ProgressBar = $VBoxContainer/EnemyAttackBar
+@onready var _enemy_list: VBoxContainer = $VBoxContainer/EnemyList
 
 @onready var _slow_label: Label = $VBoxContainer/BuffRow/SlowLabel
 @onready var _speed_label: Label = $VBoxContainer/BuffRow/SpeedLabel
@@ -19,24 +19,42 @@ extends CanvasLayer
 
 var _combat: Combat
 var _selector: Selector
+var _enemy_rows: Array[EnemyHudRow] = []
 
 
 func setup(combat: Combat, selector: Selector) -> void:
 	_combat = combat
 	_selector = selector
 	_player_hp_bar.max_value = combat.player_max_hp
-	_enemy_hp_bar.max_value = combat.enemy_max_hp
-	_attack_progress.max_value = 100.0
 	_mana_bar.max_value = Combat.MANA_MAX
+	_rebuild_enemy_rows()
+	refresh_hp()
 
 
-func update_hp(player_hp: int, player_max: int, enemy_hp: int, enemy_max: int) -> void:
-	_player_hp_label.text = "Player: %d / %d" % [player_hp, player_max]
-	_enemy_hp_label.text = "Enemy: %d / %d" % [enemy_hp, enemy_max]
-	_player_hp_bar.value = player_hp
-	_enemy_hp_bar.value = enemy_hp
+func _rebuild_enemy_rows() -> void:
+	_enemy_rows.clear()
+	while _enemy_list.get_child_count() > 0:
+		var child := _enemy_list.get_child(0)
+		_enemy_list.remove_child(child)
+		child.free()
 
-func update_mana(mana: float, maximum: float) -> void:
+	for enemy in _combat.enemies:
+		var row: EnemyHudRow = enemy_row_scene.instantiate()
+		_enemy_list.add_child(row)
+		row.setup(enemy)
+		_enemy_rows.append(row)
+
+
+func refresh_hp() -> void:
+	if _combat == null:
+		return
+	_player_hp_label.text = "Player: %d / %d" % [_combat.player_hp, _combat.player_max_hp]
+	_player_hp_bar.value = _combat.player_hp
+	for row in _enemy_rows:
+		row.refresh_hp()
+
+
+func update_mana(mana: float, _maximum: float) -> void:
 	_mana_bar.value = mana
 
 
@@ -47,12 +65,17 @@ func set_last_effect(description: String) -> void:
 func show_battle_end(message: String) -> void:
 	_end_label.text = message
 	_end_overlay.visible = true
-	_attack_progress.value = 0.0
+	for row in _enemy_rows:
+		row.clear_attack_bar()
 	set_process(false)
 
 
 func _process(_delta: float) -> void:
-	_attack_progress.value = _combat.get_attack_progress() * 100.0
+	if _combat == null:
+		return
+	var slow_mult := _combat.get_slow_multiplier()
+	for row in _enemy_rows:
+		row.update_attack_progress(slow_mult)
 	_slow_label.text = "Slow: %d" % _combat.get_slow_stacks()
 	_speed_label.text = "Speed: %d" % _selector.get_speed_stacks()
 	_attack_label.text = "Attack: %d" % _combat.get_player_attack_damage()

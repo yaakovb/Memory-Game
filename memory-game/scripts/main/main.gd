@@ -18,26 +18,21 @@ func _ready() -> void:
 	_effect_resolver.effect_applied.connect(_on_effect_applied)
 	_board.pair_matched.connect(_effect_resolver.apply)
 	_board.color_matched.connect(_on_color_matched)
-	# disconnect hurry from pair_mismatched (or leave mismatch unwired)
-	# _board.pair_mismatched.connect(_combat.hurry_next_attack)
 	_combat.player_defeated.connect(_on_player_defeated)
-	_combat.enemy_defeated.connect(_on_enemy_defeated)
-	_on_hp_changed(_combat.player_hp, _combat.enemy_hp)
+	_combat.all_enemies_defeated.connect(_on_all_enemies_defeated)
 	_combat.bonus_attack_fired.connect(_on_bonus_attack_fired)
+	_on_hp_changed()
 
 
-func _on_hp_changed(player_hp: int, enemy_hp: int) -> void:
-	_hud.update_hp(
-		player_hp, _combat.player_max_hp,
-		enemy_hp, _combat.enemy_max_hp
-	)
+func _on_hp_changed() -> void:
+	_hud.refresh_hp()
 
 
 func _on_player_defeated() -> void:
 	handle_battle_ended("You Lose")
 
 
-func _on_enemy_defeated() -> void:
+func _on_all_enemies_defeated() -> void:
 	handle_battle_ended("You Win Hurray Hurray")
 
 
@@ -63,11 +58,13 @@ func _input(event: InputEvent) -> void:
 func _on_effect_applied(description: String) -> void:
 	_hud.set_last_effect(description)
 
-func _on_color_matched(color_id: int) -> void:
+
+func _on_color_matched(_color_id: int) -> void:
 	_combat.hurry_next_attack()
-	_hud.set_last_effect("Color match")
+	_hud.set_last_effect("Color match +%.0f mana" % Combat.MANA_PER_COLOR_MATCH)
 	_combat.add_mana(Combat.MANA_PER_COLOR_MATCH)
 	_hud.update_mana(_combat.mana, Combat.MANA_MAX)
+
 
 func _on_bonus_attack_fired(damage: int) -> void:
 	_hud.set_last_effect("Bonus attack: %d damage" % damage)
