@@ -5,7 +5,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 **Godot project:** `memory-game/`  
 **MVP 1 archive:** [archive/MVP_1/](archive/MVP_1/) (Steps 1–12 complete — single enemy, 4×4 unique pairs).
 
-**Last updated:** Steps 1–6 done. Next: two enemies / CombatDirector (Step 7).
+**Last updated:** Steps 1–7 done (PR #1 merged). Next: money on kill HUD stub (Step 8).
 
 ---
 
@@ -20,8 +20,8 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 | 4    | Resolve: true pair / color match / icon-only / full miss | **Done**                         |
 | 5    | Color-match longer fade + enemy hurry                    | **Done**                         |
 | 6    | Mana bar + autofire bonus attack (default target)        | **Done**                         |
-| 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | **In progress** (coding)         |
-| 8    | Money on kill (HUD stub)                                 | Pending                          |
+| 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | **Done**                         |
+| 8    | Money on kill (HUD stub)                                 | **In progress**                  |
 | 9    | One non-damage enemy action (optional stretch)           | Pending                          |
 | 10   | Pair composition tuning pass                             | Pending                          |
 | —    | Playmat map stub (see Game Progression Elements Design)  | **After** battle steps feel good |
@@ -108,11 +108,13 @@ CombatDirector (or evolved Combat) tracks mana; HUD bar; autofire damage at defa
 
 ---
 
-### Step 7 — Two enemies
+### Step 7 — Two enemies ✅
 
 Split single-enemy Combat into roster. Example: tank + assassin with different interval/damage. Win = all dead. Slow policy: all living (per GDD).
 
-**Key files:** new enemy/director scripts, HUD enemy rows.
+**Done:** `Enemy` RefCounted; `Combat` roster (tank + assassin placeholders; assassin dmg 4); default target = first living; `all_enemies_defeated` for win; `enemy_defeated(enemy)` for per-kill hooks. HUD `EnemyList` + `EnemyHudRow` spawned from `enemies` array (N enemies / duplicate types OK). Merged via PR #1.
+
+**Key files:** `enemy.gd`, `combat.gd`, `enemy_hud_row.*`, `hud.gd` / `hud.tscn`.
 
 ---
 
