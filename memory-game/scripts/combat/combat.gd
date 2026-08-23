@@ -7,6 +7,7 @@ signal enemy_defeated(enemy: Enemy)
 signal all_enemies_defeated
 signal mana_changed(current: float, maximum: float)
 signal bonus_attack_fired(damage: int)
+signal money_changed(money: int)
 
 @export var player_max_hp := 20
 
@@ -17,6 +18,7 @@ const BASE_ATTACK_DAMAGE := 3
 const MISMATCH_ATTACK_HURRY := 0.5
 const MANA_MAX := 100.0
 const MANA_PER_COLOR_MATCH := 25.0
+const MONEY_PER_KILL := 10
 
 ## Placeholder roster — tune in Step 10 / GDD Values.
 const TANK_MAX_HP := 20
@@ -30,6 +32,7 @@ var player_hp: int
 ## Public — EffectResolver / HUD read this for display and upgrades.
 var attack_bonus := 0
 var mana := 0.0
+var money := 0
 var enemies: Array[Enemy] = []
 
 var _battle_ended := false
@@ -79,6 +82,8 @@ func damage_enemy(amount: int) -> void:
 	target.take_damage(amount)
 	hp_changed.emit()
 	if not target.is_alive():
+		money += MONEY_PER_KILL
+		money_changed.emit(money)
 		enemy_defeated.emit(target)
 		if not has_living_enemies():
 			all_enemies_defeated.emit()

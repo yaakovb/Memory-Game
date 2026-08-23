@@ -20,8 +20,11 @@ func _ready() -> void:
 	_board.color_matched.connect(_on_color_matched)
 	_combat.player_defeated.connect(_on_player_defeated)
 	_combat.all_enemies_defeated.connect(_on_all_enemies_defeated)
+	_combat.enemy_defeated.connect(_on_enemy_defeated)
 	_combat.bonus_attack_fired.connect(_on_bonus_attack_fired)
+	_combat.money_changed.connect(_hud.update_money)
 	_on_hp_changed()
+	_hud.update_money(_combat.money)
 
 
 func _on_hp_changed() -> void:
@@ -34,6 +37,10 @@ func _on_player_defeated() -> void:
 
 func _on_all_enemies_defeated() -> void:
 	handle_battle_ended("You Win Hurray Hurray")
+
+
+func _on_enemy_defeated(enemy: Enemy) -> void:
+	_hud.set_last_effect("+%d (%s)" % [Combat.MONEY_PER_KILL, enemy.display_name])
 
 
 func handle_battle_ended(message: String) -> void:

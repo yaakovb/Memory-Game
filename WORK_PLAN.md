@@ -5,7 +5,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 **Godot project:** `memory-game/`  
 **MVP 1 archive:** [archive/MVP_1/](archive/MVP_1/) (Steps 1–12 complete — single enemy, 4×4 unique pairs).
 
-**Last updated:** Steps 1–7 done (PR #1 merged). Next: money on kill HUD stub (Step 8).
+**Last updated:** Steps 1–8 done locally. Next: optional non-damage enemy action (Step 9) or tuning (Step 10).
 
 ---
 
@@ -21,7 +21,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 | 5    | Color-match longer fade + enemy hurry                    | **Done**                         |
 | 6    | Mana bar + autofire bonus attack (default target)        | **Done**                         |
 | 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | **Done**                         |
-| 8    | Money on kill (HUD stub)                                 | **In progress**                  |
+| 8    | Money on kill (HUD stub)                                 | **Done**                         |
 | 9    | One non-damage enemy action (optional stretch)           | Pending                          |
 | 10   | Pair composition tuning pass                             | Pending                          |
 | —    | Playmat map stub (see Game Progression Elements Design)  | **After** battle steps feel good |
@@ -118,9 +118,13 @@ Split single-enemy Combat into roster. Example: tank + assassin with different i
 
 ---
 
-### Step 8 — Money stub
+### Step 8 — Money stub ✅
 
 On `enemy_defeated`, add money; show on HUD. No shop yet.
+
+**Done:** `Combat.money` / `MONEY_PER_KILL` (10); `money_changed` signal; HUD `MoneyLabel`; last-effect `+10 (Name)` on kill.
+
+**Key files:** `combat.gd`, `main.gd`, `hud.gd` / `hud.tscn`.
 
 ---
 

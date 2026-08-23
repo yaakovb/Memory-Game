@@ -5,6 +5,7 @@ extends CanvasLayer
 
 @onready var _player_hp_label: Label = $VBoxContainer/PlayerHPLabel
 @onready var _player_hp_bar: ProgressBar = $VBoxContainer/PlayerHPBar
+@onready var _money_label: Label = $VBoxContainer/MoneyLabel
 @onready var _enemy_list: VBoxContainer = $VBoxContainer/EnemyList
 
 @onready var _slow_label: Label = $VBoxContainer/BuffRow/SlowLabel
@@ -56,6 +57,10 @@ func refresh_hp() -> void:
 
 func update_mana(mana: float, _maximum: float) -> void:
 	_mana_bar.value = mana
+
+
+func update_money(amount: int) -> void:
+	_money_label.text = "Money: %d" % amount
 
 
 func set_last_effect(description: String) -> void:

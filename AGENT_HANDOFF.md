@@ -16,15 +16,13 @@ Context for the next Cursor agent (or human). Mentor mode: teach and guide; do n
 
 ## Current code reality
 
-MVP 2 **Steps 1–7 done** (PR #1 merged):
+MVP 2 **Steps 1–8 done**:
 
-- 6×6; `STARTING_PAIRS`; four-way resolve; color-match lockouts; mana + autofire bonus
-- `Enemy` roster on `Combat`; HUD rows spawned from `enemies` array
-- Win on `all_enemies_defeated`; per-kill `enemy_defeated(enemy)` exists but unused
-- Balance still rough (enemies can overwhelm); tune later in Step 10
-- **No money yet**
+- Full battle loop through money-on-kill HUD stub
+- `Combat.money` (+10 per kill); HUD `MoneyLabel`; `enemy_defeated` wired
+- Balance still rough; no shop / spend yet
 
-**Next:** Step 8 — money on kill (HUD stub only; no shop).
+**Next:** Step 9 (optional non-damage enemy action) or Step 10 (tuning). Skip 9 if fights aren't fun yet.
 
 GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 
@@ -48,7 +46,7 @@ GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 
 ## Suggested next implementation slice
 
-Work Plan **Step 8**: track `money` on `Combat` (or Main); on `enemy_defeated` add a placeholder amount (e.g. 10, or per-enemy later); show a Money label on HUD; optional last-effect “+N gold”. No shop / spend. Keep mentor pace.
+Work Plan **Step 9** (optional) or **Step 10** tuning: enemy damage/intervals and money-per-kill. Prefer tuning before adding non-damage actions if fights still feel unfair.
 
 ---
 

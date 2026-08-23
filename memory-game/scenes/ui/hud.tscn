@@ -23,6 +23,11 @@ max_value = 20.0
 value = 20.0
 show_percentage = false
 
+[node name="MoneyLabel" type="Label" parent="VBoxContainer" unique_id=1746371149]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Money: 0"
+
 [node name="EnemyList" type="VBoxContainer" parent="VBoxContainer" unique_id=2116066843]
 layout_mode = 2
 theme_override_constants/separation = 8
