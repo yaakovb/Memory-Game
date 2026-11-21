@@ -21,10 +21,10 @@ const MANA_PER_COLOR_MATCH := 25.0
 ## Placeholder roster — tune in Step 10 / GDD Values.
 const TANK_MAX_HP := 20
 const TANK_DAMAGE := 1
-const TANK_INTERVAL := 3.0
+const TANK_INTERVAL := 5.0
 const ASSASSIN_MAX_HP := 10
-const ASSASSIN_DAMAGE := 4
-const ASSASSIN_INTERVAL := 8.0
+const ASSASSIN_DAMAGE := 2
+const ASSASSIN_INTERVAL := 10.0
 
 var player_hp: int
 ## Public — EffectResolver / HUD read this for display and upgrades.
