@@ -8,7 +8,7 @@ signal all_enemies_defeated
 signal mana_changed(current: float, maximum: float)
 signal bonus_attack_fired(damage: int)
 
-@export var player_max_hp := 20
+@export var player_max_hp := 25
 
 const MAX_SLOW_STACKS := 3
 const SLOW_DURATION := 10.0
@@ -19,10 +19,10 @@ const MANA_MAX := 100.0
 const MANA_PER_COLOR_MATCH := 25.0
 
 ## Placeholder roster — tune in Step 10 / GDD Values.
-const TANK_MAX_HP := 20
+const TANK_MAX_HP := 18
 const TANK_DAMAGE := 1
 const TANK_INTERVAL := 5.0
-const ASSASSIN_MAX_HP := 10
+const ASSASSIN_MAX_HP := 15
 const ASSASSIN_DAMAGE := 2
 const ASSASSIN_INTERVAL := 10.0
 
