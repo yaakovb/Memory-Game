@@ -225,8 +225,8 @@ Add one non-damage action only after 2-enemy damage fights feel stable.
 | Mana max | 100 | Unitless progress |
 | Bonus attack damage | = player attack damage | Same as Attack pair for now |
 | Money per kill (stub) | 10 | Flat for now; per-enemy later |
-| Enemy roster | Tank 20HP/1/5s; Assassin 10HP/2/10s | Tune in Step 10 |
-| Player max HP | TBD | Scale vs multi-enemy |
+| Enemy roster | Tank 16HP/1/5s; Assassin 8HP/2/10s | Tune in Step 10 |
+| Player max HP | 25 | Scale vs multi-enemy |
 | Enemy definitions | Data-driven | Tank / assassin examples |
 
 ---
