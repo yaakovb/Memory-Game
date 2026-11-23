@@ -2,9 +2,9 @@ class_name Board
 extends Node2D
 
 const GRID_SIZE := 6
-const CELL_SIZE := 64
-const TILE_GAP := 6
-const BOARD_MARGIN := 3
+const CELL_SIZE := 128
+const TILE_GAP := 10
+const BOARD_MARGIN := 6
 
 ## One entry per pair: Vector2i(effect_id, color_id).
 ## effect: 0 Attack, 1 Heal, 2 Slow, 3 Speed, 4 Upgrade

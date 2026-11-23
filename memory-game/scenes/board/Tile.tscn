@@ -6,30 +6,33 @@
 script = ExtResource("1_ts3a1")
 
 [node name="Face" type="ColorRect" parent="." unique_id=1540866695]
-offset_right = 64.0
-offset_bottom = 64.0
+offset_right = 128.0
+offset_bottom = 128.0
 color = Color(0.22745098, 0.22745098, 0.22745098, 1)
 
 [node name="Icon" type="TextureRect" parent="." unique_id=1815349202]
 visible = false
 clip_contents = true
 anchors_preset = -1
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 56.0
-offset_bottom = 56.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 128.0
+offset_bottom = 128.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Cover" type="ColorRect" parent="." unique_id=551356375]
 modulate = Color(1, 1, 1, 0)
-offset_right = 64.0
-offset_bottom = 64.0
+offset_right = 128.0
+offset_bottom = 128.0
 color = Color(0.15, 0.15, 0.15, 1)
 
 [node name="SelectionOutline" type="Line2D" parent="." unique_id=1885160207]
 visible = false
-points = PackedVector2Array(4, 4, 60, 4, 60, 60, 4, 60)
+points = PackedVector2Array(-3, -3, 131, -3, 131, 131, -3, 131)
 closed = true
-width = 6.0
-default_color = Color(1, 1, 0, 1)
+width = 3.0
+joint_mode = 2
+begin_cap_mode = 0
+end_cap_mode = 0
+default_color = Color(1, 1, 1, 1)

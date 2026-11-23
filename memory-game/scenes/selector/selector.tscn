@@ -6,7 +6,10 @@
 script = ExtResource("1_wvknu")
 
 [node name="Outline" type="Line2D" parent="."]
-points = PackedVector2Array(0, 0, 64, 0, 64, 64, 0, 64)
+points = PackedVector2Array(-3, -3, 131, -3, 131, 131, -3, 131)
 width = 3.0
 closed = true
-default_color = Color(1, 1, 0, 1)
+joint_mode = 2
+begin_cap_mode = 0
+end_cap_mode = 0
+default_color = Color(1, 1, 1, 1)
