@@ -3,25 +3,38 @@ extends Node2D
 
 enum State { HIDDEN, REVEALED, GREYED, EMPTY }
 
-const HIDDEN_COLOR := Color(0.23, 0.23, 0.23)
 const REVEAL_HOLD_DURATION := 0.35  # tune: time to actually see the second tile
 const MISMATCH_FADE_DURATION := 1.65
 const COLOR_MATCH_FADE_DURATION := 3.15
-const TILE_SIZE := 64.0
+const TILE_SIZE := 128.0
 const MATCH_POP_DURATION := 0.18
-const AFFILIATION_COLORS := [
-	Color.BLUE,
-	Color.YELLOW,
-	Color.PURPLE,
-	Color.ORANGE
-]
 
-const EFFECT_ICONS := {
-	0: preload("res://assets/icons/attack.svg"),
-	1: preload("res://assets/icons/heal.svg"),
-	2: preload("res://assets/icons/slow.svg"),
-	3: preload("res://assets/icons/speed.svg"),
-	4: preload("res://assets/icons/upgrade.svg"),
+const CARD_BACK := preload("res://assets/tiles/card-back.png")
+
+## Key is Vector2i(effect_id, color_id).
+## effect: 0 sword, 1 medicine, 2 slow, 3 haste, 4 hammer
+## color:  0 blue, 1 yellow, 2 purple, 3 orange
+const TILE_ART := {
+	Vector2i(0, 0): preload("res://assets/tiles/blue-sword.png"),
+	Vector2i(0, 1): preload("res://assets/tiles/yellow-sword.png"),
+	Vector2i(0, 2): preload("res://assets/tiles/purple-sword.png"),
+	Vector2i(0, 3): preload("res://assets/tiles/orange-sword.png"),
+	Vector2i(1, 0): preload("res://assets/tiles/blue-medicine.png"),
+	Vector2i(1, 1): preload("res://assets/tiles/yellow-medicine.png"),
+	Vector2i(1, 2): preload("res://assets/tiles/purple-medicine.png"),
+	Vector2i(1, 3): preload("res://assets/tiles/orange-medicine.png"),
+	Vector2i(2, 0): preload("res://assets/tiles/blue-slow.png"),
+	Vector2i(2, 1): preload("res://assets/tiles/yellow-slow.png"),
+	Vector2i(2, 2): preload("res://assets/tiles/purple-slow.png"),
+	Vector2i(2, 3): preload("res://assets/tiles/orange-slow.png"),
+	Vector2i(3, 0): preload("res://assets/tiles/blue-haste.png"),
+	Vector2i(3, 1): preload("res://assets/tiles/yellow-haste.png"),
+	Vector2i(3, 2): preload("res://assets/tiles/purple-haste.png"),
+	Vector2i(3, 3): preload("res://assets/tiles/orange-haste.png"),
+	Vector2i(4, 0): preload("res://assets/tiles/blue-hammer.png"),
+	Vector2i(4, 1): preload("res://assets/tiles/yellow-hammer.png"),
+	Vector2i(4, 2): preload("res://assets/tiles/purple-hammer.png"),
+	Vector2i(4, 3): preload("res://assets/tiles/orange-hammer.png"),
 }
 
 @onready var _face: ColorRect = $Face
@@ -50,10 +63,9 @@ func reveal() -> void:
 	if _state == State.EMPTY:
 		return
 	_state = State.REVEALED
-	_face.visible = true
-	_face.modulate = Color.WHITE
-	_face.color = AFFILIATION_COLORS[pair_color_id % AFFILIATION_COLORS.size()]
-	_icon.texture = EFFECT_ICONS[pair_effect_id % EFFECT_ICONS.size()]
+	_face.visible = false
+	_icon.modulate = Color.WHITE
+	_icon.texture = TILE_ART[Vector2i(pair_effect_id, pair_color_id)]
 	_icon.visible = true
 	_cover.modulate.a = 0.0
 
@@ -95,12 +107,12 @@ func grey_and_fade(duration: float = MISMATCH_FADE_DURATION) -> void:
 	_kill_juice_tween()
 	_restore_transform()
 	_state = State.GREYED
-	# Do NOT grey the face yet — hold first
+	# Hold the full-color art, then grey it before the cover fades in.
 	_cover.modulate.a = 0.0
 	var tween := create_tween()
 	tween.tween_interval(REVEAL_HOLD_DURATION)
 	tween.tween_callback(func() -> void:
-		_face.modulate = Color(0.55, 0.55, 0.55, 1.0)
+		_icon.modulate = Color(0.55, 0.55, 0.55, 1.0)
 	)
 	tween.tween_property(_cover, "modulate:a", 1.0, duration)
 	tween.tween_callback(conceal)
@@ -117,12 +129,12 @@ func set_selected_outline(show_outline: bool) -> void:
 func _reset_visuals() -> void:
 	_kill_juice_tween()
 	_restore_transform()
-	_face.visible = true
-	_face.modulate = Color.WHITE
-	_face.color = HIDDEN_COLOR
+	_face.visible = false
+	_icon.modulate = Color.WHITE
+	_icon.texture = CARD_BACK
+	_icon.visible = true
 	_cover.modulate.a = 0.0
 	_selection_outline.visible = false
-	_icon.visible = false
 
 
 ## Node2D scales from top-left — nudge position so the pop looks centered.
