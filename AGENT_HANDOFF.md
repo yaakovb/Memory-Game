@@ -19,8 +19,8 @@ Context for the next Cursor agent (or human). Mentor mode: teach and guide; do n
 MVP 2 **Steps 1–9 done**:
 
 - 6×6; `STARTING_PAIRS`; four-way resolve; color-match lockouts; mana + autofire bonus
-- Battle rolls two profiles from Tank, Cleric, Assassin, Heavy
-- Tank can raise armor; Cleric heals the most wounded ally
+- Battle rolls two profiles from Tank, Cleric, Assassin
+- Tank armor and Cleric heal replace a swing every 3–5 attacks
 - +10 gold per kill on the HUD. No shop
 - Balance still rough; tune later in Step 10
 

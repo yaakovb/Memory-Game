@@ -10,15 +10,15 @@ var damage: int
 var interval: float
 var timer: float = 0.0
 
-## Chance to gain armor when this enemy attacks. 0 = never.
-var armor_chance := 0.0
+enum Special { NONE, ARMOR, HEAL }
+
+## Specials replace a normal swing. The gap is rolled as 3, 4, or 5 attack intervals.
+var special := Special.NONE
+var special_every := 0
+var special_timer := 0.0
 var armor_duration := 0.0
 var armor_timer := 0.0
-
-## 0 heal_amount means this enemy never heals.
 var heal_amount := 0
-var heal_interval := 0.0
-var heal_timer := 0.0
 
 
 func _init(
@@ -32,6 +32,7 @@ func _init(
 	hp = p_max_hp
 	damage = p_damage
 	interval = p_interval
+	_roll_special_gap()
 
 
 func is_alive() -> bool:
@@ -46,6 +47,19 @@ func get_attack_interval(slow_multiplier: float) -> float:
 	return interval * slow_multiplier
 
 
+func get_special_interval(slow_multiplier: float) -> float:
+	return interval * float(special_every) * slow_multiplier
+
+
+func _roll_special_gap() -> void:
+	if special == Special.NONE:
+		special_every = 0
+		special_timer = 0.0
+		return
+	special_every = randi_range(3, 5)
+	special_timer = 0.0
+
+
 func get_attack_progress(slow_multiplier: float) -> float:
 	var attack_interval := get_attack_interval(slow_multiplier)
 	if attack_interval <= 0.0:
@@ -53,8 +67,7 @@ func get_attack_progress(slow_multiplier: float) -> float:
 	return clampf(timer / attack_interval, 0.0, 1.0)
 
 
-## One frame of this enemy's own timers.
-## attack: swing is ready. armor: this swing raised armor. heal: amount to give an ally.
+## One frame. A ready special replaces the swing: no damage, attack timer restarts.
 func advance(delta: float, slow_multiplier: float) -> Dictionary:
 	var result := {"attack": false, "armor": false, "heal": 0}
 	if not is_alive():
@@ -63,21 +76,32 @@ func advance(delta: float, slow_multiplier: float) -> Dictionary:
 	if armor_timer > 0.0:
 		armor_timer = maxf(armor_timer - delta, 0.0)
 
+	var special_ready := false
+	if special != Special.NONE:
+		special_timer += delta
+		special_ready = special_timer >= get_special_interval(slow_multiplier)
+
 	timer += delta
-	if timer >= get_attack_interval(slow_multiplier):
+	var attack_ready := timer >= get_attack_interval(slow_multiplier)
+
+	if special_ready:
+		timer = 0.0
+		_apply_special(result)
+		_roll_special_gap()
+	elif attack_ready:
 		timer = 0.0
 		result.attack = true
-		if armor_chance > 0.0 and randf() < armor_chance:
-			armor_timer = armor_duration
-			result.armor = true
-
-	if heal_amount > 0 and heal_interval > 0.0:
-		heal_timer += delta
-		if heal_timer >= heal_interval:
-			heal_timer = 0.0
-			result.heal = heal_amount
 
 	return result
+
+
+func _apply_special(result: Dictionary) -> void:
+	match special:
+		Special.ARMOR:
+			armor_timer = armor_duration
+			result.armor = true
+		Special.HEAL:
+			result.heal = heal_amount
 
 
 func take_damage(amount: int) -> void:
@@ -95,3 +119,5 @@ func hurry(amount: float, slow_multiplier: float) -> void:
 	if not is_alive():
 		return
 	timer = minf(timer + amount, get_attack_interval(slow_multiplier))
+	if special != Special.NONE:
+		special_timer = minf(special_timer + amount, get_special_interval(slow_multiplier))

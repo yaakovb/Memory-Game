@@ -130,7 +130,7 @@ On `enemy_defeated`, add money; show on HUD. No shop yet.
 
 One enemy heals ally or debuffs selector speed. Only after Step 7 is fun.
 
-**Done:** Each battle shuffles four profiles and keeps two. Tank sometimes raises armor (incoming damage halved, at least 1). Cleric heals the most wounded living ally. Assassin is a fast 1-damage swing. Heavy is a slow 3-damage swing.
+**Done:** Each battle shuffles Tank, Cleric, and Assassin and keeps two. Tank armor and Cleric heal replace a swing. That special has its own cooldown, rolled as 3, 4, or 5 attack intervals. Assassin only attacks.
 
 ---
 

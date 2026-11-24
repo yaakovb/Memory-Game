@@ -26,22 +26,16 @@ const MONEY_PER_KILL := 10
 const TANK_MAX_HP := 16
 const TANK_DAMAGE := 1
 const TANK_INTERVAL := 5.0
-const TANK_ARMOR_CHANCE := 0.35
 const TANK_ARMOR_DURATION := 6.0
 
 const CLERIC_MAX_HP := 10
 const CLERIC_DAMAGE := 1
 const CLERIC_INTERVAL := 6.5
 const CLERIC_HEAL := 3
-const CLERIC_HEAL_INTERVAL := 8.0
 
 const ASSASSIN_MAX_HP := 8
 const ASSASSIN_DAMAGE := 1
 const ASSASSIN_INTERVAL := 2.5
-
-const HEAVY_MAX_HP := 10
-const HEAVY_DAMAGE := 3
-const HEAVY_INTERVAL := 8.0
 
 var player_hp: int
 ## Public — EffectResolver / HUD read this for display and upgrades.
@@ -67,7 +61,6 @@ func _roll_opening_pair() -> Array[Enemy]:
 		_make_tank(),
 		_make_cleric(),
 		_make_assassin(),
-		_make_heavy(),
 	]
 	pool.shuffle()
 	return [pool[0], pool[1]]
@@ -75,24 +68,22 @@ func _roll_opening_pair() -> Array[Enemy]:
 
 func _make_tank() -> Enemy:
 	var enemy := Enemy.new("Tank", TANK_MAX_HP, TANK_DAMAGE, TANK_INTERVAL)
-	enemy.armor_chance = TANK_ARMOR_CHANCE
+	enemy.special = Enemy.Special.ARMOR
 	enemy.armor_duration = TANK_ARMOR_DURATION
+	enemy._roll_special_gap()
 	return enemy
 
 
 func _make_cleric() -> Enemy:
 	var enemy := Enemy.new("Cleric", CLERIC_MAX_HP, CLERIC_DAMAGE, CLERIC_INTERVAL)
+	enemy.special = Enemy.Special.HEAL
 	enemy.heal_amount = CLERIC_HEAL
-	enemy.heal_interval = CLERIC_HEAL_INTERVAL
+	enemy._roll_special_gap()
 	return enemy
 
 
 func _make_assassin() -> Enemy:
 	return Enemy.new("Assassin", ASSASSIN_MAX_HP, ASSASSIN_DAMAGE, ASSASSIN_INTERVAL)
-
-
-func _make_heavy() -> Enemy:
-	return Enemy.new("Heavy", HEAVY_MAX_HP, HEAVY_DAMAGE, HEAVY_INTERVAL)
 
 
 func _process(delta: float) -> void:
