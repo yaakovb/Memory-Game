@@ -31,7 +31,8 @@ func _apply_setup() -> void:
 func refresh_hp() -> void:
 	if _enemy == null or not is_node_ready():
 		return
-	_name_label.text = "%s: %d / %d" % [_enemy.display_name, _enemy.hp, _enemy.max_hp]
+	var armor := "  Armor" if _enemy.is_armored() else ""
+	_name_label.text = "%s: %d / %d%s" % [_enemy.display_name, _enemy.hp, _enemy.max_hp, armor]
 	_hp_bar.value = _enemy.hp
 	modulate.a = 1.0 if _enemy.is_alive() else 0.45
 
@@ -43,6 +44,8 @@ func update_attack_progress(slow_multiplier: float) -> void:
 		_attack_bar.value = 0.0
 		return
 	_attack_bar.value = _enemy.get_attack_progress(slow_multiplier) * 100.0
+	var armor := "  Armor" if _enemy.is_armored() else ""
+	_name_label.text = "%s: %d / %d%s" % [_enemy.display_name, _enemy.hp, _enemy.max_hp, armor]
 
 
 func clear_attack_bar() -> void:

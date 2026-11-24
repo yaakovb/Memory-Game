@@ -16,6 +16,11 @@ offset_bottom = 480.0
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 
+[node name="MoneyLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Gold: 0"
+
 [node name="PlayerHPBar" type="ProgressBar" parent="VBoxContainer" unique_id=1009565891]
 custom_minimum_size = Vector2(200, 24)
 layout_mode = 2

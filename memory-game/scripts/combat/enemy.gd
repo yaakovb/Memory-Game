@@ -1,7 +1,7 @@
 class_name Enemy
 extends RefCounted
 
-## One combatant in the roster. Combat (director) owns the list and applies slow/hurry.
+## One combatant. Combat owns the roster and applies the player's slow to attack speed.
 
 var display_name: String
 var max_hp: int
@@ -9,6 +9,16 @@ var hp: int
 var damage: int
 var interval: float
 var timer: float = 0.0
+
+## Chance to gain armor when this enemy attacks. 0 = never.
+var armor_chance := 0.0
+var armor_duration := 0.0
+var armor_timer := 0.0
+
+## 0 heal_amount means this enemy never heals.
+var heal_amount := 0
+var heal_interval := 0.0
+var heal_timer := 0.0
 
 
 func _init(
@@ -22,14 +32,16 @@ func _init(
 	hp = p_max_hp
 	damage = p_damage
 	interval = p_interval
-	timer = 0.0
 
 
 func is_alive() -> bool:
 	return hp > 0
 
 
-## Baseline interval scaled by Combat's slow multiplier (1.0 = no slow).
+func is_armored() -> bool:
+	return armor_timer > 0.0
+
+
 func get_attack_interval(slow_multiplier: float) -> float:
 	return interval * slow_multiplier
 
@@ -41,20 +53,38 @@ func get_attack_progress(slow_multiplier: float) -> float:
 	return clampf(timer / attack_interval, 0.0, 1.0)
 
 
-## Returns true when this enemy should deal `damage` to the player.
-func tick(delta: float, slow_multiplier: float) -> bool:
+## One frame of this enemy's own timers.
+## attack: swing is ready. armor: this swing raised armor. heal: amount to give an ally.
+func advance(delta: float, slow_multiplier: float) -> Dictionary:
+	var result := {"attack": false, "armor": false, "heal": 0}
 	if not is_alive():
-		return false
+		return result
+
+	if armor_timer > 0.0:
+		armor_timer = maxf(armor_timer - delta, 0.0)
+
 	timer += delta
-	var attack_interval := get_attack_interval(slow_multiplier)
-	if timer >= attack_interval:
+	if timer >= get_attack_interval(slow_multiplier):
 		timer = 0.0
-		return true
-	return false
+		result.attack = true
+		if armor_chance > 0.0 and randf() < armor_chance:
+			armor_timer = armor_duration
+			result.armor = true
+
+	if heal_amount > 0 and heal_interval > 0.0:
+		heal_timer += delta
+		if heal_timer >= heal_interval:
+			heal_timer = 0.0
+			result.heal = heal_amount
+
+	return result
 
 
 func take_damage(amount: int) -> void:
-	hp = maxi(hp - amount, 0)
+	var dealt := amount
+	if is_armored() and dealt > 0:
+		dealt = maxi(1, dealt / 2)
+	hp = maxi(hp - dealt, 0)
 
 
 func heal(amount: int) -> void:
