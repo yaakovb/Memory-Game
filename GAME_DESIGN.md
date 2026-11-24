@@ -140,6 +140,8 @@ Multi-enemy note: **Slow** may apply to all enemies or only the default target �
 
 ## Combat — multiple enemies
 
+Profiles, health, attacks, and specials: [ENEMIES.md](ENEMIES.md).
+
 A battle can include **N ≥ 1** enemies. Each enemy has its own:
 
 | Property | Meaning |
