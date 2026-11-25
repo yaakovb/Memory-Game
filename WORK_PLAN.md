@@ -130,7 +130,7 @@ On `enemy_defeated`, add money; show on HUD. No shop yet.
 
 One enemy heals ally or debuffs selector speed. Only after Step 7 is fun.
 
-**Done:** Each battle shuffles Tank, Cleric, and Assassin and keeps two. After 3–5 swings the special timer starts and fills like an attack. Tank armor, Cleric heal, and Assassin 4-damage strike fire when that bar fills.
+**Done:** Each battle shuffles Tank, Cleric, and Assassin and keeps two. Specials start after a fixed number of swings: Tank 4, Cleric 3, Assassin 5. The special timer then fills like an attack.
 
 ---
 

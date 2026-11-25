@@ -27,16 +27,19 @@ const TANK_MAX_HP := 16
 const TANK_DAMAGE := 2
 const TANK_INTERVAL := 5.0
 const TANK_ARMOR_DURATION := 6.0
+const TANK_SPECIAL_EVERY := 4
 
 const CLERIC_MAX_HP := 10
 const CLERIC_DAMAGE := 1
 const CLERIC_INTERVAL := 5.5
 const CLERIC_HEAL := 3
+const CLERIC_SPECIAL_EVERY := 3
 
 const ASSASSIN_MAX_HP := 8
 const ASSASSIN_DAMAGE := 1
 const ASSASSIN_INTERVAL := 2.5
 const ASSASSIN_SPECIAL_DAMAGE := 4
+const ASSASSIN_SPECIAL_EVERY := 5
 
 var player_hp: int
 ## Public — EffectResolver / HUD read this for display and upgrades.
@@ -70,6 +73,7 @@ func _roll_opening_pair() -> Array[Enemy]:
 func _make_tank() -> Enemy:
 	var enemy := Enemy.new("Tank", TANK_MAX_HP, TANK_DAMAGE, TANK_INTERVAL)
 	enemy.special = Enemy.Special.ARMOR
+	enemy.attacks_until_special = TANK_SPECIAL_EVERY
 	enemy.armor_duration = TANK_ARMOR_DURATION
 	enemy._roll_special_gap()
 	return enemy
@@ -78,6 +82,7 @@ func _make_tank() -> Enemy:
 func _make_cleric() -> Enemy:
 	var enemy := Enemy.new("Cleric", CLERIC_MAX_HP, CLERIC_DAMAGE, CLERIC_INTERVAL)
 	enemy.special = Enemy.Special.HEAL
+	enemy.attacks_until_special = CLERIC_SPECIAL_EVERY
 	enemy.heal_amount = CLERIC_HEAL
 	enemy._roll_special_gap()
 	return enemy
@@ -86,6 +91,7 @@ func _make_cleric() -> Enemy:
 func _make_assassin() -> Enemy:
 	var enemy := Enemy.new("Assassin", ASSASSIN_MAX_HP, ASSASSIN_DAMAGE, ASSASSIN_INTERVAL)
 	enemy.special = Enemy.Special.STRIKE
+	enemy.attacks_until_special = ASSASSIN_SPECIAL_EVERY
 	enemy.special_damage = ASSASSIN_SPECIAL_DAMAGE
 	enemy._roll_special_gap()
 	return enemy
