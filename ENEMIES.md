@@ -4,12 +4,12 @@ A battle shuffles **Tank**, **Cleric**, and **Assassin** and keeps **two**. The 
 
 Numbers live in `memory-game/scripts/combat/combat.gd`. A player hit is 3 damage before Upgrade. Killing an enemy grants 10 gold.
 
-A special replaces the normal swing. It does not deal damage. Its cooldown is its own timer, rolled as **3, 4, or 5** times that enemy's attack interval, then rolled again.
+After **3, 4, or 5** normal attacks, that enemy's special timer starts at empty. It fills like an attack bar, using the same interval as that enemy's swing. The special fires when the bar fills. It does not also make a normal attack. Then a new 3–5 count is rolled.
 
 | Name | Health | Attack | Special |
 |---|---:|---|---|
-| Tank | 16 | 1 damage every 5s | Armor for 6s. Incoming damage is halved, and at least 1 still gets through. |
-| Cleric | 10 | 1 damage every 6.5s | Heals the most wounded living ally for 3, including itself. |
-| Assassin | 8 | 1 damage every 2.5s | None. |
+| Tank | 16 | 2 damage every 5s | Armor for 6s. Incoming damage is halved, and at least 1 still gets through. |
+| Cleric | 10 | 1 damage every 5.5s | Heals the most wounded living ally for 3, including itself. |
+| Assassin | 8 | 1 damage every 2.5s | A strike for 4 damage. |
 
-Player slow stretches both the attack timer and the special timer. A color-match hurry pushes both timers forward.
+While the special bar is filling, the HUD label reads **Special**. Player slow stretches the active timer. A color-match hurry pushes that same timer forward.

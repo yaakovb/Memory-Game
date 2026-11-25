@@ -24,18 +24,19 @@ const MONEY_PER_KILL := 10
 
 ## Opening roster. A battle rolls two different profiles from this set.
 const TANK_MAX_HP := 16
-const TANK_DAMAGE := 1
+const TANK_DAMAGE := 2
 const TANK_INTERVAL := 5.0
 const TANK_ARMOR_DURATION := 6.0
 
 const CLERIC_MAX_HP := 10
 const CLERIC_DAMAGE := 1
-const CLERIC_INTERVAL := 6.5
+const CLERIC_INTERVAL := 5.5
 const CLERIC_HEAL := 3
 
 const ASSASSIN_MAX_HP := 8
 const ASSASSIN_DAMAGE := 1
 const ASSASSIN_INTERVAL := 2.5
+const ASSASSIN_SPECIAL_DAMAGE := 4
 
 var player_hp: int
 ## Public — EffectResolver / HUD read this for display and upgrades.
@@ -83,7 +84,11 @@ func _make_cleric() -> Enemy:
 
 
 func _make_assassin() -> Enemy:
-	return Enemy.new("Assassin", ASSASSIN_MAX_HP, ASSASSIN_DAMAGE, ASSASSIN_INTERVAL)
+	var enemy := Enemy.new("Assassin", ASSASSIN_MAX_HP, ASSASSIN_DAMAGE, ASSASSIN_INTERVAL)
+	enemy.special = Enemy.Special.STRIKE
+	enemy.special_damage = ASSASSIN_SPECIAL_DAMAGE
+	enemy._roll_special_gap()
+	return enemy
 
 
 func _process(delta: float) -> void:
@@ -95,6 +100,9 @@ func _process(delta: float) -> void:
 		var action: Dictionary = enemy.advance(delta, slow_mult)
 		if action.attack:
 			damage_player(enemy.damage)
+		if int(action.special_damage) > 0:
+			damage_player(int(action.special_damage))
+			combat_log.emit("%s strikes for %d" % [enemy.display_name, int(action.special_damage)])
 		if action.armor:
 			combat_log.emit("%s raises armor" % enemy.display_name)
 		if int(action.heal) > 0:

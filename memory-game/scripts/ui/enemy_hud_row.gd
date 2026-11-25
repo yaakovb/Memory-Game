@@ -44,6 +44,7 @@ func update_attack_progress(slow_multiplier: float) -> void:
 		_attack_bar.value = 0.0
 		return
 	_attack_bar.value = _enemy.get_attack_progress(slow_multiplier) * 100.0
+	_attack_label.text = "Special" if _enemy.is_charging_special() else "Next Attack"
 	var armor := "  Armor" if _enemy.is_armored() else ""
 	_name_label.text = "%s: %d / %d%s" % [_enemy.display_name, _enemy.hp, _enemy.max_hp, armor]
 

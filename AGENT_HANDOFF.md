@@ -20,7 +20,7 @@ MVP 2 **Steps 1–9 done**:
 
 - 6×6; `STARTING_PAIRS`; four-way resolve; color-match lockouts; mana + autofire bonus
 - Battle rolls two profiles from Tank, Cleric, Assassin
-- Tank armor and Cleric heal replace a swing every 3–5 attacks
+- After 3–5 swings, a special timer fills like an attack. Tank armor, Cleric heal, Assassin strike for 4
 - +10 gold per kill on the HUD. No shop
 - Balance still rough; tune later in Step 10
 
