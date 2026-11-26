@@ -21,6 +21,8 @@ func _ready() -> void:
 	_combat.player_defeated.connect(_on_player_defeated)
 	_combat.all_enemies_defeated.connect(_on_all_enemies_defeated)
 	_combat.bonus_attack_fired.connect(_on_bonus_attack_fired)
+	_combat.money_changed.connect(_hud.set_money)
+	_combat.combat_log.connect(_hud.set_last_effect)
 	_on_hp_changed()
 
 

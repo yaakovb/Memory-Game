@@ -7,8 +7,10 @@ signal enemy_defeated(enemy: Enemy)
 signal all_enemies_defeated
 signal mana_changed(current: float, maximum: float)
 signal bonus_attack_fired(damage: int)
+signal money_changed(money: int)
+signal combat_log(description: String)
 
-@export var player_max_hp := 25
+@export var player_max_hp := 30
 
 const MAX_SLOW_STACKS := 3
 const SLOW_DURATION := 10.0
@@ -18,18 +20,32 @@ const MISMATCH_ATTACK_HURRY := 0.5
 const MANA_MAX := 100.0
 const MANA_PER_COLOR_MATCH := 25.0
 
-## Placeholder roster — tune in Step 10 / GDD Values.
+const MONEY_PER_KILL := 10
+
+## Opening roster. A battle rolls two different profiles from this set.
 const TANK_MAX_HP := 16
 const TANK_DAMAGE := 1
 const TANK_INTERVAL := 5.0
+const TANK_ARMOR_DURATION := 6.0
+const TANK_SPECIAL_EVERY := 4
+
+const CLERIC_MAX_HP := 10
+const CLERIC_DAMAGE := 1
+const CLERIC_INTERVAL := 5.5
+const CLERIC_HEAL := 3
+const CLERIC_SPECIAL_EVERY := 3
+
 const ASSASSIN_MAX_HP := 8
-const ASSASSIN_DAMAGE := 2
-const ASSASSIN_INTERVAL := 10.0
+const ASSASSIN_DAMAGE := 1
+const ASSASSIN_INTERVAL := 4.0
+const ASSASSIN_SPECIAL_DAMAGE := 4
+const ASSASSIN_SPECIAL_EVERY := 5
 
 var player_hp: int
 ## Public — EffectResolver / HUD read this for display and upgrades.
 var attack_bonus := 0
 var mana := 0.0
+var money := 0
 var enemies: Array[Enemy] = []
 
 var _battle_ended := false
@@ -37,16 +53,48 @@ var _slow_stacks := 0
 var _slow_timer := 0.0
 
 
-## Placeholder roster — change this list only (HUD builds one row per entry).
-## Examples: two tanks, or append a third Enemy.new(...) for a 3-enemy fight.
 func _ready() -> void:
 	player_hp = player_max_hp
-	enemies = [
-		Enemy.new("Tank", TANK_MAX_HP, TANK_DAMAGE, TANK_INTERVAL),
-		Enemy.new("Assassin", ASSASSIN_MAX_HP, ASSASSIN_DAMAGE, ASSASSIN_INTERVAL),
-		# Enemy.new("Tank 2", TANK_MAX_HP, TANK_DAMAGE, TANK_INTERVAL),
-	]
+	enemies = _roll_opening_pair()
 	hp_changed.emit()
+	money_changed.emit(money)
+
+
+func _roll_opening_pair() -> Array[Enemy]:
+	var pool: Array[Enemy] = [
+		_make_tank(),
+		_make_cleric(),
+		_make_assassin(),
+	]
+	pool.shuffle()
+	return [pool[0], pool[1]]
+
+
+func _make_tank() -> Enemy:
+	var enemy := Enemy.new("Tank", TANK_MAX_HP, TANK_DAMAGE, TANK_INTERVAL)
+	enemy.special = Enemy.Special.ARMOR
+	enemy.attacks_until_special = TANK_SPECIAL_EVERY
+	enemy.armor_duration = TANK_ARMOR_DURATION
+	enemy._roll_special_gap()
+	return enemy
+
+
+func _make_cleric() -> Enemy:
+	var enemy := Enemy.new("Cleric", CLERIC_MAX_HP, CLERIC_DAMAGE, CLERIC_INTERVAL)
+	enemy.special = Enemy.Special.HEAL
+	enemy.attacks_until_special = CLERIC_SPECIAL_EVERY
+	enemy.heal_amount = CLERIC_HEAL
+	enemy._roll_special_gap()
+	return enemy
+
+
+func _make_assassin() -> Enemy:
+	var enemy := Enemy.new("Assassin", ASSASSIN_MAX_HP, ASSASSIN_DAMAGE, ASSASSIN_INTERVAL)
+	enemy.special = Enemy.Special.STRIKE
+	enemy.attacks_until_special = ASSASSIN_SPECIAL_EVERY
+	enemy.special_damage = ASSASSIN_SPECIAL_DAMAGE
+	enemy._roll_special_gap()
+	return enemy
 
 
 func _process(delta: float) -> void:
@@ -55,8 +103,16 @@ func _process(delta: float) -> void:
 
 	var slow_mult := get_slow_multiplier()
 	for enemy in enemies:
-		if enemy.tick(delta, slow_mult):
+		var action: Dictionary = enemy.advance(delta, slow_mult)
+		if action.attack:
 			damage_player(enemy.damage)
+		if int(action.special_damage) > 0:
+			damage_player(int(action.special_damage))
+			combat_log.emit("%s strikes for %d" % [enemy.display_name, int(action.special_damage)])
+		if action.armor:
+			combat_log.emit("%s raises armor" % enemy.display_name)
+		if int(action.heal) > 0:
+			_heal_most_wounded(int(action.heal), enemy)
 
 	if _slow_timer > 0.0:
 		_slow_timer -= delta
@@ -79,6 +135,9 @@ func damage_enemy(amount: int) -> void:
 	target.take_damage(amount)
 	hp_changed.emit()
 	if not target.is_alive():
+		money += MONEY_PER_KILL
+		money_changed.emit(money)
+		combat_log.emit("+%d gold" % MONEY_PER_KILL)
 		enemy_defeated.emit(target)
 		if not has_living_enemies():
 			all_enemies_defeated.emit()
@@ -87,6 +146,23 @@ func damage_enemy(amount: int) -> void:
 func heal_player(amount: int) -> void:
 	player_hp = mini(player_hp + amount, player_max_hp)
 	hp_changed.emit()
+
+
+func _heal_most_wounded(amount: int, source: Enemy) -> void:
+	var target: Enemy = null
+	var lowest_ratio := 2.0
+	for enemy in enemies:
+		if not enemy.is_alive() or enemy.hp >= enemy.max_hp:
+			continue
+		var ratio := float(enemy.hp) / float(enemy.max_hp)
+		if ratio < lowest_ratio:
+			lowest_ratio = ratio
+			target = enemy
+	if target == null:
+		return
+	target.heal(amount)
+	hp_changed.emit()
+	combat_log.emit("%s heals %s +%d" % [source.display_name, target.display_name, amount])
 
 
 func heal_enemy(amount: int) -> void:

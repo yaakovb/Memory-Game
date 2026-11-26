@@ -5,7 +5,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 **Godot project:** `memory-game/`  
 **MVP 1 archive:** [archive/MVP_1/](archive/MVP_1/) (Steps 1–12 complete — single enemy, 4×4 unique pairs).
 
-**Last updated:** Steps 1–7 done (PR #1 merged). Next: money on kill HUD stub (Step 8).
+**Last updated:** Steps 1–9 done. Next: Step 10 tuning pass.
 
 ---
 
@@ -21,8 +21,8 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 | 5    | Color-match longer fade + enemy hurry                    | **Done**                         |
 | 6    | Mana bar + autofire bonus attack (default target)        | **Done**                         |
 | 7    | CombatDirector + **2 enemies** (own HP/timer/damage)     | **Done**                         |
-| 8    | Money on kill (HUD stub)                                 | **In progress**                  |
-| 9    | One non-damage enemy action (optional stretch)           | Pending                          |
+| 8    | Money on kill (HUD stub)                                 | **Done**                         |
+| 9    | One non-damage enemy action (optional stretch)           | **Done**                         |
 | 10   | Pair composition tuning pass                             | Pending                          |
 | —    | Playmat map stub (see Game Progression Elements Design)  | **After** battle steps feel good |
 
@@ -118,15 +118,19 @@ Split single-enemy Combat into roster. Example: tank + assassin with different i
 
 ---
 
-### Step 8 — Money stub
+### Step 8 — Money stub ✅
 
 On `enemy_defeated`, add money; show on HUD. No shop yet.
 
+**Done:** `Combat.money` +10 per kill; HUD `Gold` label; last-effect line shows "+10 gold".
+
 ---
 
-### Step 9 — Stretch: non-damage action
+### Step 9 — Stretch: non-damage action ✅
 
 One enemy heals ally or debuffs selector speed. Only after Step 7 is fun.
+
+**Done:** Each battle shuffles Tank, Cleric, and Assassin and keeps two. Specials start after a fixed number of swings: Tank 4, Cleric 3, Assassin 5. The special timer then fills like an attack.
 
 ---
 

@@ -16,15 +16,15 @@ Context for the next Cursor agent (or human). Mentor mode: teach and guide; do n
 
 ## Current code reality
 
-MVP 2 **Steps 1–7 done** (PR #1 merged):
+MVP 2 **Steps 1–9 done**:
 
 - 6×6; `STARTING_PAIRS`; four-way resolve; color-match lockouts; mana + autofire bonus
-- `Enemy` roster on `Combat`; HUD rows spawned from `enemies` array
-- Win on `all_enemies_defeated`; per-kill `enemy_defeated(enemy)` exists but unused
-- Balance still rough (enemies can overwhelm); tune later in Step 10
-- **No money yet**
+- Battle rolls two profiles from Tank, Cleric, Assassin
+- Specials start after a fixed swing count: Tank 4, Cleric 3, Assassin 5. Then the special timer fills like an attack.
+- +10 gold per kill on the HUD. No shop
+- Balance still rough; tune later in Step 10
 
-**Next:** Step 8 — money on kill (HUD stub only; no shop).
+**Next:** Step 10 — lock pair composition and placeholder numbers.
 
 GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 

@@ -1,7 +1,7 @@
 class_name Selector
 extends Node2D
 
-const BASE_MOVE_COOLDOWN := 0.32
+const BASE_MOVE_COOLDOWN := 0.25
 const MIN_MOVE_COOLDOWN := 0.1
 const SPEED_PER_STACK := 0.05
 const MAX_SPEED_STACKS := 3

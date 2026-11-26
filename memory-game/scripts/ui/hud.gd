@@ -5,6 +5,7 @@ extends CanvasLayer
 
 @onready var _player_hp_label: Label = $VBoxContainer/PlayerHPLabel
 @onready var _player_hp_bar: ProgressBar = $VBoxContainer/PlayerHPBar
+@onready var _money_label: Label = $VBoxContainer/MoneyLabel
 @onready var _enemy_list: VBoxContainer = $VBoxContainer/EnemyList
 
 @onready var _slow_label: Label = $VBoxContainer/BuffRow/SlowLabel
@@ -29,6 +30,7 @@ func setup(combat: Combat, selector: Selector) -> void:
 	_mana_bar.max_value = Combat.MANA_MAX
 	_rebuild_enemy_rows()
 	refresh_hp()
+	set_money(combat.money)
 
 
 func _rebuild_enemy_rows() -> void:
@@ -58,6 +60,10 @@ func update_mana(mana: float, _maximum: float) -> void:
 	_mana_bar.value = mana
 
 
+func set_money(money: int) -> void:
+	_money_label.text = "Gold: %d" % money
+
+
 func set_last_effect(description: String) -> void:
 	_effects_label.text = "Last: %s" % description
 
@@ -74,7 +80,9 @@ func _process(_delta: float) -> void:
 	if _combat == null:
 		return
 	var slow_mult := _combat.get_slow_multiplier()
+	var target := _combat.get_default_target()
 	for row in _enemy_rows:
+		row.set_is_target(row.tracks(target))
 		row.update_attack_progress(slow_mult)
 	_slow_label.text = "Slow: %d" % _combat.get_slow_stacks()
 	_speed_label.text = "Speed: %d" % _selector.get_speed_stacks()
