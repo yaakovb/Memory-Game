@@ -1,12 +1,12 @@
 class_name EnemyHudRow
-extends VBoxContainer
+extends PanelContainer
 
-@onready var _name_label: Label = $NameLabel
-@onready var _hp_bar: ProgressBar = $HPBar
-@onready var _attack_label: Label = $AttackLabel
-@onready var _attack_bar: ProgressBar = $AttackBar
-@onready var _special_label: Label = $SpecialLabel
-@onready var _special_bar: ProgressBar = $SpecialBar
+@onready var _name_label: Label = $Body/NameLabel
+@onready var _hp_bar: ProgressBar = $Body/HPBar
+@onready var _attack_label: Label = $Body/AttackLabel
+@onready var _attack_bar: ProgressBar = $Body/AttackBar
+@onready var _special_label: Label = $Body/SpecialLabel
+@onready var _special_bar: ProgressBar = $Body/SpecialBar
 
 var _enemy: Enemy
 var _is_target := false
