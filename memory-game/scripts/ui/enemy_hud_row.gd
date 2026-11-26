@@ -76,3 +76,4 @@ func update_attack_progress(slow_multiplier: float) -> void:
 func clear_attack_bar() -> void:
 	if is_node_ready():
 		_attack_bar.value = 0.0
+		_special_bar.value = 0.0
