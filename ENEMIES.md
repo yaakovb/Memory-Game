@@ -8,8 +8,8 @@ After a fixed number of normal attacks, that enemy's special timer starts at emp
 
 | Name | Health | Attack | Special |
 |---|---:|---|---|
-| Tank | 16 | 2 damage every 5s | Armor for 6s, frequency 4. Incoming damage is halved, and at least 1 still gets through. |
+| Tank | 16 | 1 damage every 5s | Armor for 6s, frequency 4. Incoming damage is halved, and at least 1 still gets through. |
 | Cleric | 10 | 1 damage every 5.5s | Heals the most wounded living ally for 3, frequency 3. |
-| Assassin | 8 | 1 damage every 2.5s | A strike for 4 damage, frequency 5. |
+| Assassin | 8 | 1 damage every 4s | A strike for 4 damage, frequency 5. |
 
 While the special bar is filling, the HUD label reads **Special**. Player slow stretches the active timer. A color-match hurry pushes that same timer forward.

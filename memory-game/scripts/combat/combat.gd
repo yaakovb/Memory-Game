@@ -10,7 +10,7 @@ signal bonus_attack_fired(damage: int)
 signal money_changed(money: int)
 signal combat_log(description: String)
 
-@export var player_max_hp := 25
+@export var player_max_hp := 30
 
 const MAX_SLOW_STACKS := 3
 const SLOW_DURATION := 10.0
@@ -24,7 +24,7 @@ const MONEY_PER_KILL := 10
 
 ## Opening roster. A battle rolls two different profiles from this set.
 const TANK_MAX_HP := 16
-const TANK_DAMAGE := 2
+const TANK_DAMAGE := 1
 const TANK_INTERVAL := 5.0
 const TANK_ARMOR_DURATION := 6.0
 const TANK_SPECIAL_EVERY := 4
@@ -37,7 +37,7 @@ const CLERIC_SPECIAL_EVERY := 3
 
 const ASSASSIN_MAX_HP := 8
 const ASSASSIN_DAMAGE := 1
-const ASSASSIN_INTERVAL := 2.5
+const ASSASSIN_INTERVAL := 4.0
 const ASSASSIN_SPECIAL_DAMAGE := 4
 const ASSASSIN_SPECIAL_EVERY := 5
 
