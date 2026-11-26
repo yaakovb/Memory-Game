@@ -80,7 +80,9 @@ func _process(_delta: float) -> void:
 	if _combat == null:
 		return
 	var slow_mult := _combat.get_slow_multiplier()
+	var target := _combat.get_default_target()
 	for row in _enemy_rows:
+		row.set_is_target(row.tracks(target))
 		row.update_attack_progress(slow_mult)
 	_slow_label.text = "Slow: %d" % _combat.get_slow_stacks()
 	_speed_label.text = "Speed: %d" % _selector.get_speed_stacks()

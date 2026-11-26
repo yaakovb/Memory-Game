@@ -12,7 +12,7 @@ var timer: float = 0.0
 
 enum Special { NONE, ARMOR, HEAL, STRIKE }
 
-## After this many normal swings, the special timer starts. Rolled as 3, 4, or 5.
+## After this many default attacks, the special timer starts.
 var special := Special.NONE
 var attacks_until_special := 0
 var _attacks_since_special := 0
@@ -53,13 +53,29 @@ func is_charging_special() -> bool:
 	return _charging_special
 
 
+func special_name() -> String:
+	match special:
+		Special.ARMOR:
+			return "Armor"
+		Special.HEAL:
+			return "Heal"
+		Special.STRIKE:
+			return "Strike"
+		_:
+			return ""
+
+
+func attacks_before_special() -> int:
+	if special == Special.NONE or _charging_special:
+		return 0
+	return maxi(attacks_until_special - _attacks_since_special, 0)
+
+
 func _roll_special_gap() -> void:
 	_attacks_since_special = 0
 	_charging_special = false
 	if special == Special.NONE:
 		attacks_until_special = 0
-		return
-	attacks_until_special = randi_range(3, 5)
 
 
 func get_attack_progress(slow_multiplier: float) -> float:
