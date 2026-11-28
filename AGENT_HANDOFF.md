@@ -6,8 +6,8 @@ Context for the next Cursor agent (or human). Mentor mode: teach and guide; do n
 
 **Active docs:**
 - [GAME_DESIGN.md](GAME_DESIGN.md) — battle rules (6×6, icon+color, mana, multi-enemy)
-- [ARCHITECTURE.md](ARCHITECTURE.md) — scenes, signals, ownership + **Balance tools**
-- [WORK_PLAN.md](WORK_PLAN.md) — MVP 2 steps + **Balance Tools milestone**
+- [ARCHITECTURE.md](ARCHITECTURE.md) — scenes, signals, ownership + **Balance tools (planned)**
+- [WORK_PLAN.md](WORK_PLAN.md) — MVP 2 steps + **Balance Tools milestone (docs only)**
 - [GAME_PROGRESSION_ELEMENTS_DESIGN.md](GAME_PROGRESSION_ELEMENTS_DESIGN.md) — toy-land playmat run + explicit forget (design only until battles are fun)
 
 **Frozen MVP 1 docs:** [archive/MVP_1/](archive/MVP_1/)
@@ -16,7 +16,7 @@ Context for the next Cursor agent (or human). Mentor mode: teach and guide; do n
 
 ## Current code reality
 
-**Milestone order:** MVP 1 (done) → **Balance Tools (current)** → resume MVP 2 Step 8+.
+**Milestone order:** MVP 1 (done) → **Balance Tools (planned next)** → resume MVP 2 Step 8+.
 
 MVP 2 **Steps 1–7 done** (PR #1 merged):
 
@@ -26,13 +26,9 @@ MVP 2 **Steps 1–7 done** (PR #1 merged):
 - Balance still rough (enemies can overwhelm); tune with Balance Tools → Step 10
 - **No money yet** (Step 8 paused)
 
-**Balance Tools BT-1/BT-2 done:**
+**Balance Tools:** documented only (BT-0). **No DebugLog / DummyPlayer code in the tree.** An earlier implementation PR was reverted on purpose — implement when the owner starts this milestone.
 
-- Autoload `DebugLog` — Output log + battle/session counters
-- `DummyPlayer` — memory bot via `Board.try_reveal_at`; batch restart
-- Off by default (`enable_dummy_player` / `memory_arena/dummy_player`)
-
-**Next:** BT-3 (short dummy batch + note win rate), then either tune numbers or resume Step 8 (money stub). Open PR #4 (gold / specials) should rebase after this lands if still needed.
+**Next:** Implement BT-1 (Debug Log) then BT-2 (Dummy Player) per Work Plan / Architecture; then BT-3 batch read. Open PR #4 (gold / specials) can wait or rebase after Balance Tools if still needed.
 
 GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 
@@ -57,9 +53,7 @@ GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 
 ## Suggested next implementation slice
 
-1. Enable dummy (`Main.enable_dummy_player` or ProjectSettings), run a batch, read `[session]` lines in Output.  
-2. Decide one tune (HP / intervals / mana) from the data.  
-3. Then Step 8 — money on kill HUD stub — or keep iterating BT-3.
+Start **Balance Tools BT-1** when asked: Autoload `DebugLog`, wire Board/Combat/Main events, print battle + session summaries. Then BT-2 DummyPlayer via `Board.try_reveal_at`. Do not dump large unrelated rewrites.
 
 ---
 
@@ -67,16 +61,15 @@ GitHub: `https://github.com/yaakovb/Memory-Game` (`origin` / `main`).
 
 | Path | Role |
 |------|------|
-| `scripts/main/main.gd` | Wiring + dummy enable + DebugLog hooks |
-| `scripts/debug/debug_log.gd` | Autoload telemetry |
-| `scripts/debug/dummy_player.gd` | Memory bot + batch restart |
-| `scripts/board/board.gd` | Grid + selection + four-way resolve + `try_reveal_at` |
+| `scripts/main/main.gd` | Wiring |
+| `scripts/board/board.gd` | Grid + selection + four-way resolve + deal |
 | `scripts/tile/tile.gd` | Visual states, hold + fade durations |
 | `scripts/combat/combat.gd` | Player + enemy roster + mana |
 | `scripts/combat/enemy.gd` | Per-enemy HP/timer/damage |
 | `scripts/effects/effect_resolver.gd` | effect_id `0..4` → effect |
 | `scripts/ui/hud.gd` | Display; dynamic enemy rows |
 | `scripts/ui/enemy_hud_row.gd` | One enemy HUD row |
+| `scripts/debug/*` | **Planned** — DebugLog + DummyPlayer (not present yet) |
 
 ---
 

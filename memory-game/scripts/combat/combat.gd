@@ -66,7 +66,6 @@ func _process(delta: float) -> void:
 
 func damage_player(amount: int) -> void:
 	player_hp = maxi(player_hp - amount, 0)
-	DebugLog.record_damage_taken(amount)
 	hp_changed.emit()
 	if player_hp <= 0:
 		player_defeated.emit()
@@ -78,10 +77,8 @@ func damage_enemy(amount: int) -> void:
 	if target == null:
 		return
 	target.take_damage(amount)
-	DebugLog.record_damage_dealt(amount)
 	hp_changed.emit()
 	if not target.is_alive():
-		DebugLog.record_enemy_killed(target.display_name)
 		enemy_defeated.emit(target)
 		if not has_living_enemies():
 			all_enemies_defeated.emit()
@@ -89,7 +86,6 @@ func damage_enemy(amount: int) -> void:
 
 func heal_player(amount: int) -> void:
 	player_hp = mini(player_hp + amount, player_max_hp)
-	DebugLog.record_heal(amount)
 	hp_changed.emit()
 
 
@@ -160,5 +156,4 @@ func _fire_bonus_attack() -> void:
 	mana_changed.emit(mana, MANA_MAX)
 	var damage := get_player_attack_damage()
 	damage_enemy(damage)
-	DebugLog.record_bonus_attack(damage)
 	bonus_attack_fired.emit(damage)

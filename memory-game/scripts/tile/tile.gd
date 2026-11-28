@@ -122,10 +122,6 @@ func is_hidden() -> bool:
 	return _state == State.HIDDEN
 
 
-func is_empty() -> bool:
-	return _state == State.EMPTY
-
-
 func set_selected_outline(show_outline: bool) -> void:
 	_selection_outline.visible = show_outline
 

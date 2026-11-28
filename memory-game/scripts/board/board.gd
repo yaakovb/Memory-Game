@@ -147,9 +147,28 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _try_reveal_selected_tile() -> void:
+	if _selection_state == SelectionState.RESOLVING:
+		return
 	if _selector == null:
 		return
-	try_reveal_at(_selector.grid_position)
+
+	var tile := get_tile_at(_selector.grid_position)
+	if tile == null or not tile.is_hidden():
+		return
+
+	tile.reveal()
+
+	match _selection_state:
+		SelectionState.IDLE:
+			_selection_state = SelectionState.ONE_SELECTED
+			_first_tile = tile
+			_first_tile_grid_pos = _selector.grid_position
+			tile.set_selected_outline(true)
+			_update_selector_outline()
+		SelectionState.ONE_SELECTED:
+			_selection_state = SelectionState.RESOLVING
+			_second_tile = tile
+			_resolve_pair()
 
 
 func _resolve_pair() -> void:
@@ -177,9 +196,7 @@ func _resolve_pair() -> void:
 			board_cleared.emit()
 			_deal_new_board()
 	elif same_effect:
-		icon_only_matched.emit()
-		first.grey_and_fade(Tile.MISMATCH_FADE_DURATION)
-		second.grey_and_fade(Tile.MISMATCH_FADE_DURATION)
+		_resolve_mismatch(first, second)
 	elif same_color:
 		color_matched.emit(first.pair_color_id)
 		first.grey_and_fade(Tile.COLOR_MATCH_FADE_DURATION)
@@ -192,47 +209,6 @@ func _resolve_mismatch(first: Tile, second: Tile) -> void:
 	pair_mismatched.emit()
 	first.grey_and_fade(Tile.MISMATCH_FADE_DURATION)
 	second.grey_and_fade(Tile.MISMATCH_FADE_DURATION)
-
-
-## Public reveal entry for DummyPlayer (and tests). Same path as Space / reveal action.
-func try_reveal_at(grid_pos: Vector2i) -> bool:
-	if _battle_ended:
-		return false
-	if _selection_state == SelectionState.RESOLVING:
-		return false
-	var tile := get_tile_at(grid_pos)
-	if tile == null or not tile.is_hidden():
-		return false
-
-	if _selector != null:
-		_selector.set_grid_position(grid_pos)
-
-	tile.reveal()
-	match _selection_state:
-		SelectionState.IDLE:
-			_selection_state = SelectionState.ONE_SELECTED
-			_first_tile = tile
-			_first_tile_grid_pos = grid_pos
-			tile.set_selected_outline(true)
-			_update_selector_outline()
-		SelectionState.ONE_SELECTED:
-			_selection_state = SelectionState.RESOLVING
-			_second_tile = tile
-			_resolve_pair()
-	return true
-
-
-func get_all_grid_positions() -> Array[Vector2i]:
-	var positions: Array[Vector2i] = []
-	for key in _tiles.keys():
-		positions.append(key)
-	return positions
-
-
-func get_first_selected_grid_pos() -> Vector2i:
-	if _selection_state == SelectionState.ONE_SELECTED:
-		return _first_tile_grid_pos
-	return Vector2i(-1, -1)
 
 
 func _update_selector_outline() -> void:

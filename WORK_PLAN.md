@@ -5,7 +5,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 **Godot project:** `memory-game/`  
 **MVP 1 archive:** [archive/MVP_1/](archive/MVP_1/) (Steps 1–12 complete — single enemy, 4×4 unique pairs).
 
-**Last updated:** Balance Tools BT-1/BT-2 landed (Debug Log + Dummy Player). Next: BT-3 batch read, then resume MVP 2 Step 8+.
+**Last updated:** Balance Tools milestone documented (not implemented yet) — after MVP 1 / before MVP 2 Step 8+. MVP 2 Steps 1–7 remain done.
 
 ---
 
@@ -14,7 +14,7 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 | Milestone | Focus | Status |
 | --------- | ----- | ------ |
 | **MVP 1** | Single-enemy 4×4 match battle | **Done** (archived) |
-| **Balance Tools** | Debug Log + Dummy Player for data-driven tuning | **In progress** |
+| **Balance Tools** | Debug Log + Dummy Player for data-driven tuning | **Planned** (docs only — implement next) |
 | **MVP 2** | 6×6, colors, mana, multi-enemy, money, … | Steps 1–7 **Done**; **8+ paused** until Balance Tools land |
 | **Run / playmat** | See Game Progression Elements Design | After battle loop feels good |
 
@@ -24,29 +24,32 @@ Living checklist. Rules: [GAME_DESIGN.md](GAME_DESIGN.md). Structure: [ARCHITECT
 
 Goal: measure the current fight with logs and a rule-based bot so Step 10 tuning (and any interim nerfs) are driven by data, not vibes.
 
+**Do not implement until this milestone is explicitly started.** Spec only for now.
+
 | Step | Focus | Status |
 | ---- | ----- | ------ |
 | BT-0 | Docs — insert this milestone; wire into Architecture / Handoff | **Done** |
-| BT-1 | **Debug Log** (Autoload) — structured events + battle/session summary | **Done** |
-| BT-2 | **Dummy Player** — memory bot via Board APIs; optional batch restart | **Done** |
-| BT-3 | Run a short batch; note win rate / death causes; decide next tune | Pending |
+| BT-1 | **Debug Log** (Autoload) — structured events + battle/session summary | **Planned** |
+| BT-2 | **Dummy Player** — memory bot via Board APIs; optional batch restart | **Planned** |
+| BT-3 | Run a short batch; note win rate / death causes; decide next tune | Pending (after BT-1/2) |
 
-### BT-1 — Debug Log
+### BT-1 — Debug Log (planned)
 
 - Autoload `DebugLog` so counters survive `reload_current_scene()` during batch runs.
 - Record: true pair / color match / icon-only / miss, damage dealt/taken, heals, bonus attacks, kills, win/lose.
 - Print to Godot Output; keep a per-battle dict + session win/loss totals.
+- Prefer emitting `icon_only_matched` separately from full miss when wiring Board (telemetry clarity).
 
-**Key files:** `scripts/debug/debug_log.gd`, wiring in `main.gd` / `combat.gd`.
+**Intended files:** `scripts/debug/debug_log.gd`, wiring in `main.gd` / `combat.gd`.
 
-### BT-2 — Dummy Player
+### BT-2 — Dummy Player (planned)
 
 - Rule bot with **perfect memory** of revealed tiles: finish known true pairs, else explore.
-- Calls `Board.try_reveal_at` (same resolve path as Space) — no fake InputEvents.
-- Off by default. Enable: Main inspector `enable_dummy_player`, or ProjectSettings `memory_arena/dummy_player`.
-- Auto-restarts until `dummy_max_matches` (default 100).
+- Call a public `Board.try_reveal_at` (same resolve path as Space) — no fake InputEvents.
+- Off by default. Enable via Main export or ProjectSettings (e.g. `memory_arena/dummy_player`).
+- Auto-restart until a configurable `max_matches` for batch runs.
 
-**Key files:** `scripts/debug/dummy_player.gd`, `Board.try_reveal_at`, `main.gd`.
+**Intended files:** `scripts/debug/dummy_player.gd`, `Board.try_reveal_at`, `main.gd`.
 
 ### BT-3 — First balance read
 
@@ -177,7 +180,7 @@ One enemy heals ally or debuffs selector speed. Only after Step 7 is fun.
 
 ### Step 10 — Tuning
 
-Lock first pair composition table and placeholder numbers in GDD Values. **Use Balance Tools (Debug Log + Dummy batches) as the measurement loop.**
+Lock first pair composition table and placeholder numbers in GDD Values. **Use Balance Tools (Debug Log + Dummy batches) as the measurement loop once implemented.**
 
 ---
 
@@ -201,7 +204,7 @@ Follow [GAME_PROGRESSION_ELEMENTS_DESIGN.md](GAME_PROGRESSION_ELEMENTS_DESIGN.md
 - [x] At least two simultaneous enemies with distinct timings  
 - [x] Win/lose + restart still work  
 - [ ] Money visible after a kill  
-- [ ] Balance Tools available (Debug Log + Dummy Player) for Step 10  
+- [ ] Balance Tools implemented (Debug Log + Dummy Player) for Step 10  
 
 ---
 
