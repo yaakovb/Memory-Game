@@ -15,15 +15,6 @@ run/main_scene="uid://dsec05nu8sx6f"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
-[autoload]
-
-DebugLog="*res://scripts/debug/debug_log.gd"
-
-[memory_arena]
-
-debug_log=true
-dummy_player=false
-
 [display]
 
 window/size/viewport_width=1280
