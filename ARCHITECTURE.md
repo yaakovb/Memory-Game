@@ -173,6 +173,23 @@ BattleRoot accepts a `BattleConfig` (player stats, enemy roster, pair pool). Do 
 
 ---
 
+## Balance tools (after MVP 1, before MVP 2 Step 8+)
+
+Inserted so we can **measure** the fight before more content. See [WORK_PLAN.md](WORK_PLAN.md) Balance Tools.
+
+| Piece | Role | Why this shape |
+|-------|------|----------------|
+| **`DebugLog` (Autoload)** | Structured events + per-battle + session win/loss | Autoload survives `reload_current_scene()` so dummy batches keep totals |
+| **`DummyPlayer`** | Rule bot: memory of reveals → finish true pairs, else explore | Calls `Board.try_reveal_at` — **same resolve path** as the player; no fake key events |
+| **`Board.try_reveal_at`** | Public reveal API | Human input and bot share one code path (DRY + honest balance) |
+
+**Enable dummy:** Main `@export enable_dummy_player`, or ProjectSettings `memory_arena/dummy_player=true`.  
+**Toggle log:** ProjectSettings `memory_arena/debug_log` (default on).
+
+Not a substitute for human playtest — the bot has perfect memory and no misclicks; treat its win rate as a **ceiling / stress** signal, then confirm by hand.
+
+---
+
 ## Folder structure (evolve toward)
 
 ```
@@ -194,6 +211,7 @@ Memory-Game/
         ├── board/
         ├── tile/
         ├── combat/        ← director + enemy
+        ├── debug/         ← DebugLog Autoload + DummyPlayer
         ├── effects/
         ├── run/           ← later
         └── ui/
